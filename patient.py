@@ -16,9 +16,15 @@ class Card:
         self.uid = None
         self.hospital_id = None
 
-    def populate():
+    def populate(self):
         # TODO: Open the path and populate card params
+        pass
+
+    def update(self, hospital_id):
+        self.hospital_id = hospital_id
 
 class MedicalRecord:
     def __init__(self):
     
+
+    # REPL for commands

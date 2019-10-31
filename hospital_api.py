@@ -1,7 +1,7 @@
 # Register
 def register(patient_uid):
     """
-    1. Use hasher to get index for uid
+    1. Use hasher to get index_hash for public blockchain
     2. Looks this up in public blockchain
     3. If id already exists, reject
     4. If not, generate pub/priv key pair
@@ -12,20 +12,20 @@ def register(patient_uid):
     pass
 
 # Write
-def write(uid, priv_key, med_record):
+def write(uid_hash, priv_key, med_record):
     """
     1. Use hasher to get index for uid
     2. Get this block from public blockchain
     3. Get last block from the hospital db
     4. Decrypt last block with priv_key
-    5. Create new block consisting of old_block_data + med_record
+    5. Create new block payload consisting of old_block_data + med_record,
     6. Encrypt new block with pub_key
     7. Send encrypted new block to db to be appended 
     """
     pass
 
 # Read
-def read(uid, priv_key):
+def read(uid_hash, priv_key):
     """
     1. Use hasher to get index for uid
     2. Get this block from public blockchain
@@ -36,7 +36,7 @@ def read(uid, priv_key):
     pass
 
 # Remove
-def remove(uid, priv_key):
+def remove(uid_hash, priv_key):
     """
     1. Use hasher to get index for uid
     2. Get this block from public blockchian
@@ -45,7 +45,7 @@ def remove(uid, priv_key):
     pass
 
 # Transfer
-def transfer(src_hosptial_id, dest_hosptial_id, uid, card):
+def transfer(src_hosptial_id, dest_hosptial_id, uid_hash, card):
     """
     1. Use hasher to get index for uid
     2. Get this block from public blockchain
@@ -57,7 +57,7 @@ def transfer(src_hosptial_id, dest_hosptial_id, uid, card):
     """    
     pass
 
-def transfer_write(dest_hospital_id, uid, block):
+def transfer_write(dest_hospital_id, uid_hash, block):
     """
     1. Append block to dest_hosptial_id using uid as row selector
     """    

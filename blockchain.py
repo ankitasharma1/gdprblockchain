@@ -29,6 +29,17 @@ class Transaction:
     on the blockchain.
     """
 class Block:
+    """
+    TODO
+    def __init__(self, index_hash, uid_hash, previous_hash, genesis_patient_data_block_hash)
+        # Public blockchain
+        self.index_hash = index_hash
+        # For patient data
+        self.uid_hash = uid_hash 
+        self.timestamp = time()
+        self.previous_hash = previous_hash
+        self.genesis_patient_data_block_hash = genesis_patient_data_block_hash
+    """
     def __init__(self, index, data, previous_hash):
         self.index = index
         self.timestamp = time()
