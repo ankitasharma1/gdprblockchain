@@ -61,7 +61,7 @@ class Block:
         nonce = str(self.nonce)
         
         result = index + timestamp + prev_hash + data + nonce              
-        h.update(result)
+        h.update(result.encode('utf-8'))
         return h.hexdigest()
                 
     """ Function to convert a timestamp to a string"""

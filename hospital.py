@@ -1,4 +1,4 @@
-class Hosptial:
+class Hospital:
     def __init__(self, blockchain, hasher, db):
         # TODO: Use uuid()
         self.id = None

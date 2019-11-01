@@ -3,7 +3,7 @@ class Patient:
         self.name = name
         self.gov_id = gov_id
         self.uid = gov_id + name
-        # TODO: Stretch Goal
+        # TODO: Stretch Goal - keep track of their own records
         self.record_path = None
         self.card_path = None
 
@@ -25,6 +25,6 @@ class Card:
 
 class MedicalRecord:
     def __init__(self):
-    
+        pass
 
     # REPL for commands

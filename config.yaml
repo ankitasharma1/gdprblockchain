@@ -33,11 +33,3 @@ patients:
     gov_id: 'CCCCCC'
     address: 'localhost'
     port: 6000
-
-cards:
-  patient_1_card:
-    path: './cards/patient_1_card.txt'
-  patient_2_card:
-    path: './cards/patient_2_card.txt'
-  patient_3_card:
-    path: './cards/patient_3_card.txt'
