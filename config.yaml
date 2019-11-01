@@ -1,6 +1,43 @@
-raincoat: 1
-coins: 5
-books: 23
-spectacles: 2
-chairs: 12
-pens: 6
+hospitals:
+    hospital_1:
+      address: 'localhost'
+      port: 1000
+    hospital_2:
+      address: 'localhost'
+      port: 2000
+    hospital_3:
+      address: 'localhost'
+      port: 3000
+
+hospital_dbs:
+  hospital_1_db:
+    path: './db/hospital_1.txt'
+  hospital_2_db:
+    path: './db/hospital_2.txt'
+  hospital_3_db:
+    path: './db/hospital_3.txt'
+
+patients:
+  patient_1:
+    name: 'bob'
+    gov_id: 'AAAAAA'
+    address: 'localhost'
+    port: 4000
+  patient_2:
+    name: 'alice'
+    gov_id: 'BBBBBB'
+    address: 'localhost'
+    port: 5000
+  patient_3:
+    name: 'jane'
+    gov_id: 'CCCCCC'
+    address: 'localhost'
+    port: 6000
+
+cards:
+  patient_1_card:
+    path: './cards/patient_1_card.txt'
+  patient_2_card:
+    path: './cards/patient_2_card.txt'
+  patient_3_card:
+    path: './cards/patient_3_card.txt'
