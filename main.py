@@ -1,4 +1,5 @@
 import yaml
+import subprocess
 from blockchain import Blockchain
 from hospital import Hospital
 from hasher import Hasher
@@ -20,22 +21,26 @@ def parse(path):
     hospital_dbs = doc['hospital_dbs']
     patients = doc['patients']
 
-    hospital_list = []
+    process = subprocess.Popen(
+        "sudo gnome-terminal -x python f.py", 
+        stdout=subprocess.PIPE,
+        stderr=None,
+        shell=True
+    )
 
     for db, hospital in zip(hospital_dbs, hospitals):
         f = open(hospital_dbs[db]['path'], 'w+')
         h = Hospital(blockchain, hasher,f)
-        hospital_list.append(h)
-
-    patient_list = []
+        h.set_address(hospitals[hospital]['address'])
+        h.set_port(hospitals[hospital]['port'])
+        h.handle_connection()
+        #os.system("gnome-terminal -e 'bash -c \"sudo apt-get update; exec bash\"'")
 
     for patient in patients:
         p = Patient(patients[patient]['name'], patients[patient]['gov_id'])
-        patient_list.append(p)
-
-    ## Clean up ##
-    for h in hospital_list:
-        h.db.close()
+        p.set_address(patients[patient]['address'])
+        p.set_port(patients[patient]['address'])
+        p.handle_connection()
 
 def main():
     parse(CONFIG_FILE)

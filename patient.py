@@ -6,7 +6,23 @@ class Patient:
         # TODO: Stretch Goal - keep track of their own records
         self.record_path = None
         self.card_path = None
-        
+
+    def handle_connection(self):
+        # Create socket object.
+        s = socket.socket()
+        s.bind(('', self.port))
+        s.listen(5)
+        while True:
+            c, addr = s.accept()
+            print("Got connection from " + addr[0] + ": " + str(addr[1]))
+            # Spawn thread to handle communication for each socket.
+            t = Thread(target=self.listen_on_socket, args=(c,))
+            t.start()
+
+    def listen_on_socket(self, socket):
+        while True:
+            x = 5    
+
 
 class Card:
     def __init__(self, path):

@@ -1,7 +1,7 @@
 hospitals:
     hospital_1:
       address: 'localhost'
-      port: 1000
+      port: 1024
     hospital_2:
       address: 'localhost'
       port: 2000
