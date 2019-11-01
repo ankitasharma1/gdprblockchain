@@ -4,14 +4,16 @@ TODO:
 
 James:
 	hasher.py
-	DNS
 	hospital_db_api.py
+	hospital.py
+	patient block chain
 
 Ankita
-	config
-	config_parser
-	main - initialization/cleanup
-	patient.py
+	DNS
 	patient_api.py
-
+	patient.py
+	blockchain.py - public
+	hospital_api.py - register
+	medical record configuration
+	network configuration
 

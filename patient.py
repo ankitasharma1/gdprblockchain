@@ -6,7 +6,7 @@ class Patient:
         # TODO: Stretch Goal - keep track of their own records
         self.record_path = None
         self.card_path = None
-
+        
 
 class Card:
     def __init__(self, path):
