@@ -1,0 +1,5 @@
+* All hospitals have the same hash function
+* One card is generated per user
+* Patients are associated with only one hospital
+* Medical records should be mandatory like date, signature, etc.
+* DNS for hospital names

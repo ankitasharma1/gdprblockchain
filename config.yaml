@@ -2,15 +2,12 @@ hospitals:
     hospital_1:
       address: 'localhost'
       port: 1024
-      staff: ['AAAAAA']
     hospital_2:
       address: 'localhost'
       port: 2000
-      staff: ['BBBBBB']
     hospital_3:
       address: 'localhost'
       port: 3000
-      staff: ['CCCCCC']
 
 physicians:
   physician_1:

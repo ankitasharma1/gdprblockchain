@@ -1,5 +1,6 @@
 import socket
 from threading import Thread
+import crypto
 
 NAME = "name"
 PATIENT_ID = "patient_id"
@@ -13,7 +14,7 @@ class Patient:
         self.record_path = None
         self.card = None
 
-    def check_in(self, hospital):        
+    def register(self, hospital):        
         if self.card == None:
             self.card = hospital.register_patient(self.name, self.patient_id)
             if self.card:
@@ -21,13 +22,19 @@ class Patient:
             else:
                 return False 
 
-    def seek_treatment(self, physician):
-        physician.seek_treatment(self.card)
+    def seek_treatment(self, physician, hospital):
+        physician.seek_treatment(self.card, hospital)
 
     def read(self, hospital):
         if self.card:
-            records = hospital.read(self.card)
-        for record in records:
-                print(record)               
+            records = hospital.read(self.card.uid)
+        if records:
+		    for record in records:
+		        record = crypto.decrypt(record, self.card.priv_key)
+		        print(record)               
+
+    def read_medical_record(self, physician, hospital):
+        if self.card:
+            physician.read_patient_record(self.card, hospital)
         
 
