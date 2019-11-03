@@ -21,5 +21,5 @@ class Physician():
         medical_record.notes = "Patient looks good to me."
         medical_record.signature = self.name
         # Hospital is responsible for adding the new record.
-        hospital.write(card, medical_record)          
+        self.hospital.write(card, medical_record)          
         

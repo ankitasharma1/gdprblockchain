@@ -23,6 +23,11 @@ class Patient:
 
     def seek_treatment(self, physician):
         physician.seek_treatment(self.card)
-               
+
+    def read(self, hospital):
+        if self.card:
+            records = hospital.read(self.card)
+        for record in records:
+                print(record)               
         
 

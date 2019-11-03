@@ -5,10 +5,10 @@ from time import time
 import csv
 
 class Hospital:
-    def __init__(self, name, blockchain, db, staff):
+    def __init__(self, name, blockchain, staff):
         self.name = name
         self.blockchain = blockchain
-        self.db = db
+        self.db = dict()
         self.address = None
         self.port = None
         self.staff = staff
@@ -22,7 +22,7 @@ class Hospital:
     def register_patient(self, name, patient_id):
         # Generate uid from patient credentials.
         uid = name + patient_id
-        hash_id = hash(uid)
+        hash_uid = hash(uid)
         # Check if uid resides on public blockchain.
         if self.blockchain.contains_hash_id(hash_uid):
             print("ERROR: patient affiliated with another hospital")
@@ -43,13 +43,52 @@ class Hospital:
             print("ERROR: invalid request to write")
             return False
         # Obtain the hash index. 
-        hash_id = hash(card.uid))
+        hash_id = hash(card.uid)
         # Get the public key from the public blockchain.
-        block = self.blockchain.get(hash_id)
+        block = self.blockchain.get_block(hash_id)
         pub_key = block.pub_key
         # Hospital db key.
-        hosp_db_key = crypto.encrypt(card.uid, card.priv_key)
+        hosp_db_key = crypto.encrypt(card.uid, pub_key)
+        # Validate the request by checking that the decrypted_db_key using
+        # the private key is equal to the uid.
+        if self.valid_request(hosp_db_key, card):
+            most_recent_write = self.get_last_block(hosp_db_key)
+            if most_recent_write:
+                most_recent_write = self.deconstruct(crypto.decrypt(most_recent_write, card.priv_key))
+                current = self.deconstruct(str(medical_record))
+                merged = self.merge(most_recent_write, current)
+                self.insert(card.uid, card.priv_key, merged)
+                return True
+            else:
+                print("ERROR: Couldn't find block associated with key")
+                return False
+        else:
+            print("ERROR: Private key does not correspond to public key")
+            return False
     
+    def read(self, card):
+
+            
+    def valid_request(self, encrypted_val, card):
+        uid = crypto.decrypt(encrypted_val, card.priv_key)
+        if uid == card.uid:
+            return True
+        return False
+
+    def merge(self, prev, curr):
+        for k,v in curr.items():
+            if v == 'None':
+                curr.update({k: prev.get(k)})
+        return curr
+    
+    def get_last_block(self, hosp_db_key):
+        if hosp_db_key in self.db:
+            blocks = self.db.get(hosp_db_key)
+            blocks = blocks.split(",")
+            block = blocks[len(blocks) - 1]
+            return block
+        else:
+            return None
 
     def add_to_blockchain(self, hash_uid, pub_key):
 	self.blockchain.new_transaction(hash_uid, pub_key);
@@ -64,11 +103,22 @@ class Hospital:
         med_record.notes = ""
         med_record.signature = self.name
         return med_record
-    
+
+    def deconstruct(self, med_record):
+        med_record = med_record.split(",")
+        n = dict()        
+        for m in med_record:
+            m = m.split(":")
+            n.update({m[0]: m[1]})
+        return(n)
+            
     def insert(self, uid, public_key, medical_record):
         key = crypto.encrypt(uid, public_key)
         value = crypto.encrypt(str(medical_record), public_key)
-        csv.writer(self.db).writerow([key,value])    
+        if key in self.db:
+            self.db.get(key) + "," + value
+        else:
+            self.db.update({key: value})         
 
     def clean_up(self):
         self.db.close()

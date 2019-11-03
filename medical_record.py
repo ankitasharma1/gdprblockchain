@@ -1,3 +1,12 @@
+import json
+
+NAME = "name"
+PATIENT_ID = "patient_id"
+HOSPITAL = "hospital"
+DATE = "date"
+NOTES = "notes"
+SIGNATURE = "signature"
+
 class MedicalRecord:
     def __init__(self):
         self.name = None
@@ -14,5 +23,6 @@ class MedicalRecord:
         date = str(self.date)
         notes = str(self.notes)
         signature = str(self.signature)
-        result = name + patient_id + hospital + date + notes + signature
+        result = {NAME: name, PATIENT_ID: patient_id, HOSPITAL: hospital, DATE: date, NOTES: notes, SIGNATURE: signature}
+        result = "name:" + name + ",patient_id:" + patient_id + ",hospital:" + hospital + ",data:" + date + ",notes:" + notes + ",signature:" + signature
         return result
