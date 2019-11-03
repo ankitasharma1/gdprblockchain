@@ -175,18 +175,25 @@ class Blockchain:
                 return True
         return False
 
+   # Return block for given hash.
+    def get_block(self, hash_id):
+        for block in self.chain:
+            if block.hash_id == hash_id:
+                return block
+        return none
+
     # Print public blockchain.
     def print_blockchain(self):
         for block in self.chain:
-                print("=======")
-		index = str(block.index)
-		timestamp = block.time_string
-		prev_hash = str(block.previous_hash)
-		nonce = str(block.nonce)
-		hash_id = str(block.hash_id)
-		pub_key = str(block.pub_key)
-		print("Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key)        
-                print("=======")
+            print("=======")
+            index = str(block.index)
+            timestamp = block.time_string
+            prev_hash = str(block.previous_hash)
+            nonce = str(block.nonce)
+            hash_id = str(block.hash_id)
+            pub_key = str(block.pub_key)
+            print("Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key)        
+            print("=======")
     
     # Helper function to validate the hash given the difficulty.
     def validate_hash(self, block):

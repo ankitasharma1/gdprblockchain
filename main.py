@@ -9,6 +9,7 @@ from threading import Thread
 import signal
 import sys
 from subprocess import Popen, PIPE
+import shutil
 
 CONFIG_FILE = 'config.yaml'
 
@@ -24,12 +25,14 @@ def parse(path):
     patients = doc['patients']
 	
     h = []
+    files = []
     for hospital in hospitals:
         address = hospitals[hospital]['address']
         port = hospitals[hospital]['port']
-        f = open(hospitals[hospital]['db_path'], 'w+')
+        path = hospitals[hospital]['db_path']
+        files.append(path)
+        f = open(path, 'w+')
         staff = hospitals[hospital]['staff']
-        print(staff)
         h.append(Hospital(hospital, blockchain, f, staff))
 
     ph = []
@@ -45,6 +48,7 @@ def parse(path):
         pa.append(Patient(patients[patient]['name'], patients[patient]['patient_id']))
 
     simulate(h, ph, pa)
+    clean_up(files)
 
 def simulate(hospitals, physicians, patients):
     h1 = hospitals[0]
@@ -66,9 +70,13 @@ def simulate(hospitals, physicians, patients):
     assert(pa1.check_in(h2) == False)
     """
     
-    pa1.check_in(h1)
-	ph1.check_in(p1)
-    pa1.seek_treatment(ph1)
+    #assert(pa1.check_in(h1) == True)
+	#assert(ph1.check_in(p1) == True)
+    #pa1.seek_treatment(ph1)
+
+def clean_up(files):
+    for file in files:
+        os.unlink(file)
 
 def main():
     parse(CONFIG_FILE)
