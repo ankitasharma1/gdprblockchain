@@ -2,34 +2,49 @@ hospitals:
     hospital_1:
       address: 'localhost'
       port: 1024
+      db_path: './db/hospital_1.csv'
+      staff: ['AAAAAA']
     hospital_2:
       address: 'localhost'
       port: 2000
+      db_path: './db/hospital_2.csv'
+      staff: ['BBBBBB']
     hospital_3:
       address: 'localhost'
       port: 3000
+      db_path: './db/hospital_3.csv'
+      staff: ['CCCCCC']
 
-hospital_dbs:
-  hospital_1_db:
-    path: './db/hospital_1.txt'
-  hospital_2_db:
-    path: './db/hospital_2.txt'
-  hospital_3_db:
-    path: './db/hospital_3.txt'
+physicians:
+  physician_1:
+    name: 'bob'
+    physician_id: 'AAAAAA'
+    address: 'localhost'
+    port: 4000
+  physician_2:
+    name: 'alice'
+    physician_id: 'BBBBBB'
+    address: 'localhost'
+    port: 5000
+  physician_3:
+    name: 'jane'
+    physician_id: 'CCCCCC'
+    address: 'localhost'
+    port: 6000
 
 patients:
   patient_1:
-    name: 'bob'
-    gov_id: 'AAAAAA'
+    name: 'sally'
+    patient_id: 'DDDDDD'
     address: 'localhost'
-    port: 4000
+    port: 7000
   patient_2:
-    name: 'alice'
-    gov_id: 'BBBBBB'
+    name: 'eric'
+    patient_id: 'EEEEEE'
     address: 'localhost'
-    port: 5000
+    port: 8000
   patient_3:
-    name: 'jane'
-    gov_id: 'CCCCCC'
+    name: 'joe'
+    patient_id: 'FFFFFF'
     address: 'localhost'
-    port: 6000
+    port: 9000

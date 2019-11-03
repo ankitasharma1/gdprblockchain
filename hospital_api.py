@@ -9,7 +9,7 @@ def register(patient_uid):
     6. write(uid, priv_key) creating the genesis patient block
     7. Generate object file (card) and return to patient
     """
-    pass
+    
 
 # Write
 def write(uid_hash, priv_key, med_record):

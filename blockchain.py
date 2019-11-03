@@ -2,65 +2,51 @@ from time import time
 import datetime
 import hashlib as hasher
 
-""" Class for transactions made on the blockchain. Each transaction has a
-    sender, recipient, and value.
-    """
+""" Class for transactions made on the blockchain.
+"""
 class Transaction:
     
     """ Transaction initializer """
-    def __init__(self, sender, recipient, value):
-        self.sender = sender
-        self.recipient = recipient
-        self.value = value
+    def __init__(self, hash_id, pub_key):
+        self.hash_id = hash_id
+        self.pub_key = pub_key
     
     """ Converts the transaction to a dictionary """
     def toDict(self):
         return {
-            'sender': self.sender,
-            'recipient': self.recipient,
-            'value': self.value
+            'hash_id': self.hash_id,
+            'pub_key': self.pub_key
     }
 
-    def __str__(self):
-        toString = self.sender + " -> " + self.recipient + " (" + self.value + ") "
-        return toString;
 
 """ Class for Blocks. A block is an object that contains transaction information
     on the blockchain.
     """
-class Block:
-    """
-    TODO
-    def __init__(self, index_hash, uid_hash, previous_hash, genesis_patient_data_block_hash)
-        # Public blockchain
-        self.index_hash = index_hash
-        # For patient data
-        self.uid_hash = uid_hash 
-        self.timestamp = time()
-        self.previous_hash = previous_hash
-        self.genesis_patient_data_block_hash = genesis_patient_data_block_hash
-    """
-    def __init__(self, index, data, previous_hash):
+class Block:        
+
+    def __init__(self, index, hash_id, pub_key, previous_hash):
         self.index = index
         self.timestamp = time()
         self.previous_hash = previous_hash
-        self.data = data
+        self.hash_id = hash_id
+        self.pub_key = pub_key
         self.nonce = 0 
         self.time_string = self.timestamp_to_string();
 
     # Function to compute a blocks hash.
     def compute_hash(self):
         # Update crypt hash with index, time,
-        # prev hash, data, and nonce
+        # prev hash, and nonce
         h = hasher.sha256()
         
         index = str(self.index)
         timestamp = self.time_string
         prev_hash = str(self.previous_hash)
-        data = str(self.data)
         nonce = str(self.nonce)
+        hash_id = str(self.hash_id)
+        pub_key = str(self.pub_key)
         
-        result = index + timestamp + prev_hash + data + nonce              
+        result = index + timestamp + prev_hash + nonce + hash_id + pub_key              
         h.update(result.encode('utf-8'))
         return h.hexdigest()
                 
@@ -68,12 +54,6 @@ class Block:
     def timestamp_to_string(self):
         return datetime.datetime.fromtimestamp(self.timestamp).strftime('%H:%M')
     
-    def __str__(self):
-        toString =  str(self.index) + "\t" + str(self.timestamp) +"\t\t" + str(self.previous_hash) + "\n"
-        for tx in self.data:
-            toString +=  "\t" + str(tx) + "\n"
-        return toString;
-
 """ Blockchain class. The blockchain is the network of blocks containing all the
     transaction data of the system.
     """
@@ -89,13 +69,13 @@ class Blockchain:
         
     # Function to create the genesis block.                
     def create_genesis_block(self):
-        genesis_block = Block(0, [], 0)
+        genesis_block = Block(0, 0, 0, 0)
         # Add block to blockchain
         return self.perform_and_add(genesis_block)
     
     # Function to add a new transaction.
-    def new_transaction(self, sender, recipient, value):
-        transaction = Transaction(sender, recipient, value)
+    def new_transaction(self, hash_id, pub_key):
+        transaction = Transaction(hash_id, pub_key)
         # Add it to list of unconfirmed transactions as a dictionary
         self.unconfirmed_transactions.append(transaction.toDict())
         # Return transaction object
@@ -108,7 +88,7 @@ class Blockchain:
             transaction = self.unconfirmed_transactions.pop(0)
             index = self.get_next_index()
             # Create a new block
-            new_block = Block(index, transaction.get('value'), self.get_hash(index - 1))
+            new_block = Block(index, transaction.get('hash_id'), transaction.get('pub_key'), self.get_hash(index - 1))
             # Add block to blockchain
             if (self.perform_and_add(new_block) < 0):
                 print("ERROR adding block in mine()")
@@ -187,6 +167,26 @@ class Blockchain:
             index = index + 1
             
         return True
+
+    # Check if given hash_id exists in the blockchain.
+    def contains_hash_id(self, hash_id):
+        for block in self.chain:
+            if block.hash_id == hash_id:
+                return True
+        return False
+
+    # Print public blockchain.
+    def print_blockchain(self):
+        for block in self.chain:
+                print("=======")
+		index = str(block.index)
+		timestamp = block.time_string
+		prev_hash = str(block.previous_hash)
+		nonce = str(block.nonce)
+		hash_id = str(block.hash_id)
+		pub_key = str(block.pub_key)
+		print("Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key)        
+                print("=======")
     
     # Helper function to validate the hash given the difficulty.
     def validate_hash(self, block):

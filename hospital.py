@@ -1,46 +1,57 @@
-import socket
-from threading import Thread
+import crypto
+from hasher import hash
+from medical_record import MedicalRecord
+from time import time
 
 class Hospital:
-    def __init__(self, blockchain, hasher, db):
-        # TODO: Use uuid()
-        self.id = None
-        # TODO: Import our hash lib that will take care of this
-        self.hasher_key = None # ex: hasher.add_key()
+    def __init__(self, name, blockchain, db, staff):
+        self.name = name
         self.blockchain = blockchain
         self.db = db
         self.address = None
         self.port = None
+        self.staff = staff
 
-    def set_address(self, address):
-        self.address = address
+    def register_physician(self, uid):
+        if uid in self.staff:
+            return True
+        print("ERROR: physician not a registered staff member")
+        return False
 
-    def set_port(self, port):
-        self.port = port
+    def register_patient(self, name, patient_id):
+        uid = name + patient_id
+        hash_uid = hash(uid)
+        if self.blockchain.contains_hash_id(hash_uid):
+            print("ERROR: patient affiliated with another hospital")
+            return None
+        priv_key, pub_key = crypto.generate_keys()
+	self.add_to_blockchain(hash_uid, pub_key);
+        self.create_first_med_record(name, patient_id)
+	return Card(uid, priv_key, self.name)
 
-    def handle_connection(self):
-        # Create socket object.
-        s = socket.socket()
-        s.bind(('', self.port))
-        s.listen(5)
-        while True:
-            c, addr = s.accept()
-            print("Got connection from " + addr[0] + ": " + str(addr[1]))
-            # Spawn thread to handle communication for each socket.
-            t = Thread(target=self.listen_on_socket, args=(c,))
-            t.start()
+    def add_to_blockchain(self, hash_uid, pub_key):
+	self.blockchain.new_transaction(hash_uid, pub_key);
+	self.blockchain.mine()
 
-    def listen_on_socket(self, socket):
-        while True:
-            x = 5
+    def create_first_med_record(self, name, patient_id):
+        med_record = MedicalRecord()
+        med_record.name = name
+        med_record.patient_id = patient_id
+        med_record.hospital = self.name
+        med_record.date = time()
+        med_record.notes = ""
+        med_record.signature = self.name
+        return med_record
 
     def clean_up(self):
         self.db.close()
 
+class Card:
+    def __init__(self, uid, priv_key, name):
+        self.uid = uid
+        self.priv_key = priv_key
+        self.hospital_name = name
 
+    def update(self, hospital_id):
+        self.hospital_id = hospital_id
 
-
-
-
-
-# updates, connections from patient, requests, i sent this etc. this one failed.
