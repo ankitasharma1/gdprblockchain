@@ -1,3 +1,7 @@
+bc_proxy_server:
+    address: 'localhost'
+    port: '1025'
+
 hospitals:
     hospital_1:
       address: 'localhost'
