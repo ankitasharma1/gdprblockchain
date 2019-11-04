@@ -77,3 +77,15 @@ class Patient:
                  return True
         return False
 
+    def transfer(self, src_hospital, dst_hospital):
+        """
+        Function to transfer data to another hospital
+        :param src_hospital: Current hospital
+        :param dst_hospital: New hospital
+        :return: boolean
+        """       
+        if self.card:
+            if src_hospital.transfer(self.card, dst_hospital):
+                 return True
+        return False
+

@@ -89,7 +89,18 @@ def simulate(hospitals, physicians, patients):
     print("---------> Read removed data")
     # Try to read data.
     pa2.read(h1)    
-        
+    print("---------> Test patient request to transfer")
+    ph3.register(h1)
+    pa2.seek_treatment(ph3, h1)
+    pa2.read(h1)
+    assert(pa2.transfer(h1, h3) == True)
+    pa2.read(h3)
+    ph2.register(h3)
+    print("---------> Add data to new hospital and return")
+    pa2.seek_treatment(ph2, h3)
+    pa2.read(h3)
+    print("---------> Test physician request to transfer")
+    pa2.transfter_medical_record(ph1, h3, h2)    
 def main():
     parse(CONFIG_FILE)
 

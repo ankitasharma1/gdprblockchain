@@ -32,7 +32,7 @@ class Physician():
         :param hospital: Hospital TODO: This will not be needed later.
         :return: nothing
         """
-        medical_record = MedicalRecord(self.name)
+        medical_record = MedicalRecord(self.name, card)
         medical_record.notes = "Patient looks good to me."
         hospital.write(card, medical_record, self.physician_id)          
 

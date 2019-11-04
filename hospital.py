@@ -32,28 +32,27 @@ class Hospital:
         """
         self.staff.append(uid)
 
-    def register_patient(self, name, patient_id):
+    def register_patient(self, patient_name, patient_id):
         """
         Function to register the patient.
-        :param name: Patient name
+        :param patient_name: Patient name
         :param patient_id: Patient id
         :return: card
         """
-        uid = name + patient_id
+        uid = patient_name + patient_id
         hash_uid = hash(uid)
         # Check if hashed uid resides on public blockchain.
         if self.blockchain.contains_hash_id(hash_uid):
-            print("ERROR: Patient " + name + " is affiliated with another hospital")
+            print("ERROR: Patient " + patient_name + " is affiliated with another hospital")
             return None
         # Generate keys.
         priv_key, pub_key = crypto.generate_keys()
         # Update public blockchain.
         self.add_to_blockchain(hash_uid, pub_key);
-        # Populate medical record with patient information.
-        medical_record = self.create_first_med_record(name, patient_id)
+        card = Card(patient_name, patient_id, uid, priv_key, self.name)
         # Insert into hospital k,v store.
-        self.insert(uid, pub_key, medical_record)
-        return Card(uid, priv_key, self.name)
+        self.insert(uid, pub_key, MedicalRecord(self.name, card))
+        return card
 
     def write(self, card, medical_record, phy):
         """
@@ -88,10 +87,9 @@ class Hospital:
                 merged = self.merge(prev, medical_record)
                 # Insert the updated medical record into the hospital k,v store.
                 self.insert(card.uid, card.priv_key, str(merged))
-                return True
             else:
-                print("ERROR: Couldn't find block associated with key")
-                return False
+                self.insert(card.uid, card.priv_key, str(medical_record))
+            return True
         else:
             print("ERROR: Private key does not correspond to public key")
             return False
@@ -135,11 +133,56 @@ class Hospital:
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
         # Confirm that data belongs to the card holder.
         if self.data_belongs_to_user(hosp_db_key, card):
-            self.db.update({hosp_db_key: ""})
+            self.db.pop(hosp_db_key)
             return True
         else:
             print("ERROR: Private key does not correspond to public key")
             return False                 
+
+    def transfer(self, card, dst_hospital):
+        """
+        Function to transfer patient data to another hospital.
+        :param card: card
+        :param dst_hospital: hospital to transfer data to
+        :return: boolean
+        """
+        # Verify that card and hospital name match.
+        if not self.valid_card(card):
+            return False
+        # Obtain the hash index. 
+        hash_id = hash(card.uid)
+        # Get the public key from the public blockchain.
+        block = self.blockchain.get_block(hash_id)
+        pub_key = block.pub_key
+        # The encrypted uid corresponds to the key in the hospital k,v store.
+        hosp_db_key = crypto.encrypt(card.uid, pub_key)
+        # Confirm that data belongs to the card holder.
+        if self.data_belongs_to_user(hosp_db_key, card):
+            # Check if other hospital is able to transfer the records           
+            if dst_hospital.transfer_write(hosp_db_key, self.db.get(hosp_db_key)):
+                # Remove data from this hospital.
+                self.db.pop(hosp_db_key)
+                # Update hospital name on patient card.
+                card.update(dst_hospital.name)
+                return True
+            else:
+                return False
+        else:
+            print("ERROR: No data found for patient")
+            return None
+
+    def transfer_write(self, hosp_db_key, blocks):
+        """
+        Function to transfer encrypted medical records to our db.
+        :param hosp_db_key: hospital db key
+        :param blocks: encrypted medical records
+        :return: boolean
+        """
+        if hosp_db_key in self.db:
+            print("ERROR: Key collision")
+            return False
+        self.db.update({hosp_db_key: blocks})
+        return True
 
     def get_staff(self):
         """
@@ -222,20 +265,6 @@ class Hospital:
         self.blockchain.new_transaction(hash_uid, pub_key);
         self.blockchain.mine()
 
-    def create_first_med_record(self, name, patient_id):
-        """
-        Function to create the very first medical record for a patient.
-        :param: name: Patient name
-        :param: patient_id: Patient id
-        :return: medical record
-        """
-        med_record = MedicalRecord(self.name)
-        med_record.name = name
-        med_record.patient_id = patient_id
-        med_record.hospital = self.name
-        med_record.notes = ""
-        return med_record
-
     def valid_phy(self, phy):
         """
         Function to validate that physician has registered with hospital.
@@ -283,16 +312,20 @@ class Card:
     """
     Card created by the hospital.
     """
-    def __init__(self, uid, priv_key, name):
+    def __init__(self, patient_name, patient_id, uid, priv_key, hospital_name):
         """
         Construct a new Card object.
+        :param patient_name: Name of the patient
+        :param patient_id: Id of the patient
         :param uid: Patient uid
         :param priv_key: Patient private key
-        :param name: Patient name
+        :param hospital_name: Name of the hospital
         """
+        self.patient_name = patient_name
+        self.patient_id = patient_id
         self.uid = uid
         self.priv_key = priv_key
-        self.hospital_name = name
+        self.hospital_name = hospital_name
 
     def update(self, hospital_name):
         """
