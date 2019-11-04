@@ -100,7 +100,8 @@ def simulate(hospitals, physicians, patients):
     pa2.seek_treatment(ph2, h3)
     pa2.read(h3)
     print("---------> Test physician request to transfer")
-    pa2.transfter_medical_record(ph1, h3, h2)    
+    assert(pa2.transfer_medical_record(h3, h2, ph2) == True) 
+    pa2.read(h2)   
 def main():
     parse(CONFIG_FILE)
 

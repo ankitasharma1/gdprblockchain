@@ -51,7 +51,21 @@ class Physician():
 		    for record in records:
 		        record = crypto.decrypt(record, card.priv_key)
 		        print(record)               
- 
+
+    def transfer_patient_record(self, card, src_hospital, dst_hospital):
+        """
+        Function to handle patient issuing request for physician to transfer their medical data.
+        :param card: Patient card
+        :param src_hospital: Where data is currently stored.
+        :param dst_hospital: Where data is requested to be transferred.
+        :return: boolean
+        """
+        if not self.hospital_affiliation_valid(src_hospital):
+            print("ERROR: " + self.name + " is not registered with hospital")
+            return False            
+        if src_hospital.transfer(card, dst_hospital):
+            return True        
+
     def hospital_affiliation_valid(self, hospital):
         """
         Function to validate that physician is registered with the hospital.

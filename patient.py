@@ -89,3 +89,14 @@ class Patient:
                  return True
         return False
 
+    def transfer_medical_record(self, src_hospital, dst_hospital, physician):
+        """
+        Function for patient to give permission to physician to transfer medical records.
+        :param src_hospital: Current hospital
+        :param dst_hospital: New hospital
+        :param physician: Physician
+        :return: boolean
+        """       
+        if self.card:
+            return physician.transfer_patient_record(self.card, src_hospital, dst_hospital)
+        return False
