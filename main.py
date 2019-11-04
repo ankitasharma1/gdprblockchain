@@ -64,19 +64,31 @@ def simulate(hospitals, physicians, patients):
     pa3 = patients[2]
 
     # Test registration.
+    print("---------> Test Registration")
     assert(pa1.register(h1) == True)
     # Simulate patient "losing" card and registering with another hospital.
+    print("---------> Double Registration")
     pa1.card = None
     assert(pa1.register(h2) == False)
-
-    # Test registration, write, and read.    
+    # Test registration, write, and read.
+    print("---------> Test Registration/Write/Read")    
     assert(pa2.register(h1) == True)
     ph1.register(h1)
     # TODO: hospital can be resolved from the card.
     pa2.seek_treatment(ph1, h1)
     pa2.read(h1)
+    print("---------> Read from another hospital that does not store our data")
+    # Try reading from a hospital that does not contain our data.
     pa2.read(h2)
+    print("---------> Test that physician can read patient's records")
+    # Test that physician can read medical records for patient.
     pa2.read_medical_record(ph1, h1)
+    print("---------> Remove patient data")
+    # Remove patient data.
+    assert(pa2.remove(h1) == True)
+    print("---------> Read removed data")
+    # Try to read data.
+    pa2.read(h1)    
         
 def main():
     parse(CONFIG_FILE)

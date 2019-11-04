@@ -64,5 +64,16 @@ class Patient:
         """       
         if self.card:
             physician.read_patient_record(self.card, hospital)
-        
+
+
+    def remove(self, hospital):
+        """
+        Function for a patient to remove all of their data.
+        :param hospital: Hospital
+        :return: boolean
+        """       
+        if self.card:
+            if hospital.remove(self.card):
+                 return True
+        return False
 

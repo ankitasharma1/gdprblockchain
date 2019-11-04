@@ -43,7 +43,7 @@ class Hospital:
         hash_uid = hash(uid)
         # Check if hashed uid resides on public blockchain.
         if self.blockchain.contains_hash_id(hash_uid):
-            print("ERROR: patient affiliated with another hospital")
+            print("ERROR: Patient " + name + " is affiliated with another hospital")
             return None
         # Generate keys.
         priv_key, pub_key = crypto.generate_keys()
@@ -116,7 +116,30 @@ class Hospital:
             else:
                 print("ERROR: No data found for patient")
                 return None
-                    
+
+    def remove(self, card):
+        """
+        Function to remove all patient data.
+        :param card: card
+        :return: boolean
+        """
+        # Verify that card and hospital name match.
+        if not self.valid_card(card):
+            return False
+        # Obtain the hash index. 
+        hash_id = hash(card.uid)
+        # Get the public key from the public blockchain.
+        block = self.blockchain.get_block(hash_id)
+        pub_key = block.pub_key
+        # The encrypted uid corresponds to the key in the hospital k,v store.
+        hosp_db_key = crypto.encrypt(card.uid, pub_key)
+        # Confirm that data belongs to the card holder.
+        if self.data_belongs_to_user(hosp_db_key, card):
+            self.db.update({hosp_db_key: ""})
+            return True
+        else:
+            print("ERROR: Private key does not correspond to public key")
+            return False                 
 
     def get_staff(self):
         """

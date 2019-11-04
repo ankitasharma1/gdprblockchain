@@ -44,7 +44,7 @@ class Physician():
         :return: nothing
         """
         if not self.hospital_affiliation_valid(hospital):
-            print("ERROR: physician not registered with hospital")
+            print("ERROR: " + self.name + " is not registered with hospital")
             return False            
         records = hospital.read(card.uid)
         if records:
@@ -60,4 +60,5 @@ class Physician():
         """
         if hospital.name in self.hospitals:
             return True
+        print("ERROR: " + self.name + " is not affiliated with " + hospital.name)
         return False

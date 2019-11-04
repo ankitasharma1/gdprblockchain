@@ -9,7 +9,14 @@ NOTES = "notes"
 SIGNATURE = "signature"
 
 class MedicalRecord:
+    """
+    Standardized medical record format.
+    """
     def __init__(self, name):
+        """
+        Construct a new MedicalRecord object.
+        :param name: Name of entity that is creating the medical record.
+        """
         self.name = None
         self.patient_id = None
         self.hospital = None
@@ -18,6 +25,11 @@ class MedicalRecord:
         self.signature = name
     
     def restore(self, k, v):
+        """
+        Before restoring the current medical record with previous information, check that the current medical record does not have this information.
+        :param k: Key
+        :param v: Value
+        """
         if k == NAME:
             if self.name == None:
                 self.name = v
