@@ -27,6 +27,20 @@ class Hospital:
     """
     API Implementations.
     """
+    def send_pub_key(self):
+        priv_key, pub_key = crypto.generate_keys()
+        print(pub_key.n.bit_length())
+        print(pub_key)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((self.bc_address, self.bc_port))
+            print("Connected to %s:%s" %(self.bc_address, self.bc_port))
+            s.send(pub_key.exportKey(format='PEM', passphrase=None, pkcs=1))
+        except Exception, e:
+            print(e)                       
+        s.close()
+        return 0
+
     def send_message_to_bc(self, msg):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -85,7 +99,7 @@ class Hospital:
         # Generate keys.
         priv_key, pub_key = crypto.generate_keys()
         # Update public blockchain.
-        self.add_to_blockchain(hash_uid, hash(pub_key)); #TODO(remove hash)
+        self.add_to_blockchain(hash_uid, pub_key);
         card = Card(patient_name, patient_id, uid, priv_key, self.name)
         # Insert into hospital k,v store.
         self.insert(uid, pub_key, MedicalRecord(self.name, card))

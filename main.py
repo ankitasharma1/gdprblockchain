@@ -66,7 +66,9 @@ def connect(hospitals, physicians, patients):
     pa2 = patients[1]
     pa3 = patients[2]
 
-    assert(pa1.register(h1) == True)
+    h1.send_pub_key()
+
+    #assert(pa1.register(h1) == True)
 
 """
 Helper function to simulate interactions.

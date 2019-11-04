@@ -4,6 +4,7 @@ from threading import Thread
 from threading import Condition
 import sys
 import bc_msg
+from Crypto.PublicKey import RSA
 
 """
 Supported Commands
@@ -87,6 +88,9 @@ def handle_connection(s):
 def listen_on_socket(c):
     while True:
         try:
+            pub_key = RSA.importKey(c.recv(1024), passphrase=None)
+            print(pub_key)
+            """
             data = c.recv(bc_msg.MESSAGE_SIZE)
             if data:
                 messages = bc_msg.deserialize(data)
@@ -96,6 +100,7 @@ def listen_on_socket(c):
                         c.send(response)
             else:
                 return clean_up(c)
+            """
         except Exception, e:
             return clean_up(c)
 
