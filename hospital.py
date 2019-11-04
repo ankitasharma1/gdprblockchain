@@ -3,6 +3,7 @@ from hasher import hash
 from medical_record import MedicalRecord
 import socket
 import bc_msg
+from constants import ERROR
 
 class Hospital:
     """
@@ -26,19 +27,36 @@ class Hospital:
     """
     API Implementations.
     """
-    def connect_to_bc(self):
+    def send_message_to_bc(self, msg):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((self.bc_address, self.bc_port))
+            print("Connected to %s:%s" %(self.bc_address, self.bc_port))
+            s.send(msg)
+            # Check to see if message requires a response.
+            if bc_msg.requires_response(bc_msg.deserialize(msg)):
+                data = s.recv(bc_msg.MESSAGE_SIZE)  
+                if data:
+                    messages = bc_msg.deserialize(data)
+                    for message in messages:
+                        s.close()
+                        return bc_msg.handle_response(message)
+         
+            """    
             print("Connected to %s:%s" %(self.bc_address, self.bc_port))
             s.send(bc_msg.contains_hash_uid_msg("XXXX"))
             s.send(bc_msg.get_block("XXXX"))
             s.send(bc_msg.new_txn("XXXX", "YYYY"))
             s.send(bc_msg.mine())
+            """
         except Exception, e:
             print(e)
+            print("ERROR: unable to send request %s to blockchain server" %(msg))
             s.close()
+            return ERROR
+            
         s.close()
+        return 0
 
     def register_physician(self, uid):
         """
@@ -58,13 +76,16 @@ class Hospital:
         uid = patient_name + patient_id
         hash_uid = hash(uid)
         # Check if hashed uid resides on public blockchain.
-        if self.blockchain.contains_hash_id(hash_uid):
+        response = self.send_message_to_bc(bc_msg.contains_hash_uid_msg(hash_uid))
+        if response == ERROR:
+            return None
+        if response:
             print("ERROR: Patient " + patient_name + " is affiliated with another hospital")
             return None
         # Generate keys.
         priv_key, pub_key = crypto.generate_keys()
         # Update public blockchain.
-        self.add_to_blockchain(hash_uid, pub_key);
+        self.add_to_blockchain(hash_uid, hash(pub_key)); #TODO(remove hash)
         card = Card(patient_name, patient_id, uid, priv_key, self.name)
         # Insert into hospital k,v store.
         self.insert(uid, pub_key, MedicalRecord(self.name, card))
@@ -278,8 +299,8 @@ class Hospital:
         :param: pub_key: Patient public key
         :return: nothing
         """
-        self.blockchain.new_transaction(hash_uid, pub_key);
-        self.blockchain.mine()
+        self.send_message_to_bc(bc_msg.new_txn(hash_uid, pub_key))
+        self.send_message_to_bc(bc_msg.mine()) 
 
     def valid_phy(self, phy):
         """

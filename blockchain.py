@@ -169,16 +169,16 @@ class Blockchain:
         return True
 
     # Check if given hash_id exists in the blockchain.
-    def contains_hash_id(self, hash_id):
+    def contains_hash_uid(self, hash_uid):
         for block in self.chain:
-            if block.hash_id == hash_id:
+            if block.hash_uid == hash_uid:
                 return True
         return False
 
    # Return block for given hash.
-    def get_block(self, hash_id):
+    def get_block(self, hash_uid):
         for block in self.chain:
-            if block.hash_id == hash_id:
+            if block.hash_id == hash_uid:
                 return block
         return none
 

@@ -29,8 +29,10 @@ class Patient:
         if self.card == None:
             self.card = hospital.register_patient(self.name, self.patient_id)
             if self.card:
+                print("Obtained card from hospital")
                 return True
             else:
+                print("Unable to register")
                 return False 
 
     def seek_treatment(self, physician, hospital):

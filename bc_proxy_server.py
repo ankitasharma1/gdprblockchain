@@ -9,13 +9,14 @@ import bc_msg
 Supported Commands
 """
 EXIT = 'exit'
+PRINT = 'print'
+
+bc = Blockchain()
 
 def main():
     """
     Accepts requests to add blocks to the blockchain.
     """
-    bc = Blockchain()
-
     # TODO: Port should be passed in as parameters.
     address = 'localhost'
     port = 1025
@@ -63,6 +64,8 @@ def repl(s, cv):
                 cv.notify()
                 cv.release()
                 return
+            elif command == PRINT:
+                bc.print_blockchain()
             else:
                 print("Supported Commands: " + EXIT)
         except Exception, e:
@@ -82,19 +85,46 @@ def handle_connection(s):
             return
 
 def listen_on_socket(c):
-    size = bc_msg.MESSAGE_SIZE
-
     while True:
         try:
-            data = c.recv(size)
+            data = c.recv(bc_msg.MESSAGE_SIZE)
             if data:
                 messages = bc_msg.deserialize(data)
                 for message in messages:
-                    print(message)
+                    response = handle_message(message)
+                    if response:
+                        c.send(response)
             else:
                 return clean_up(c)
         except Exception, e:
             return clean_up(c)
+
+def handle_message(message):
+    type = message.get(bc_msg.TYPE)
+    if type == bc_msg.CONTAINS_HASH_UID:
+        hash_uid = message.get(bc_msg.HASH_UID)
+        print("-------> Servicing request to check if %s exists in the blockchain" %(hash_uid))
+        response = blockchain.contains_hash_uid(hash_uid)
+        print("Returning %s " %(response))
+        return bc_msg.contains_hash_uid_response(response)
+    elif type == bc_msg.GET_BLOCK:
+        hash_uid = message.get(bc_msg.HASH_UID)
+        print("-------> Servicing request to obtain block for %s" %(hash_uid))
+        response = blockchain.get_block(hash_uid)
+        print("Returning %s " %(response))
+        return bc_msg.get_block_response(response)
+    elif type == bc_msg.NEW_TXN:
+        hash_uid = message.get(bc_msg.HASH_UID)
+        pub_key = message.get(bc_msg.PUB_KEY)
+        print("-------> Servicing request to insert new transaction with hash_uid:%s pub_key:%s" %(hash_uid, pub_key))
+        blockchain.new_transaction(hash_uid, pub_key)
+        return None
+    elif type == bc_msg.MINE:
+        print("-------> Servicing request to mine the blockchain")
+        blockchain.mine()
+        return None
+    else:
+        print("Unable to service request, invalid message: %d" %(type))
 
 def clean_up(c):
     print("Closing connection")

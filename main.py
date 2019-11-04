@@ -66,7 +66,7 @@ def connect(hospitals, physicians, patients):
     pa2 = patients[1]
     pa3 = patients[2]
 
-    h1.connect_to_bc()
+    assert(pa1.register(h1) == True)
 
 """
 Helper function to simulate interactions.
