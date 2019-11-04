@@ -3,6 +3,7 @@ from blockchain import Blockchain
 from hospital import Hospital
 from patient import Patient
 from physician import Physician
+import time
 
 # File which contains information for the world we are simulating.
 CONFIG_FILE = 'config.yaml'
@@ -66,9 +67,17 @@ def connect(hospitals, physicians, patients):
     pa2 = patients[1]
     pa3 = patients[2]
 
-    h1.send_pub_key()
+    print("------REGISTRATION")
+    pa1.register(h1)
 
-    #assert(pa1.register(h1) == True)
+    # Give some time for the blockchain to update.
+    time.sleep(5)
+
+    pa1.card = None
+    print("------DUP REGISTRATION")    
+    pa2.register(h2)
+    
+    #test_reg_wr_rd(pa2, ph1, h1)
 
 """
 Helper function to simulate interactions.

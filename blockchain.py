@@ -171,7 +171,7 @@ class Blockchain:
     # Check if given hash_id exists in the blockchain.
     def contains_hash_uid(self, hash_uid):
         for block in self.chain:
-            if block.hash_uid == hash_uid:
+            if block.hash_id == hash_uid:
                 return True
         return False
 
@@ -184,6 +184,7 @@ class Blockchain:
 
     # Print public blockchain.
     def print_blockchain(self):
+        print("\n\n")
         for block in self.chain:
             print("=======")
             index = str(block.index)
@@ -194,6 +195,7 @@ class Blockchain:
             pub_key = str(block.pub_key)
             print("Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key)        
             print("=======")
+        print("\n\n")
     
     # Helper function to validate the hash given the difficulty.
     def validate_hash(self, block):

@@ -16,6 +16,7 @@ NOP = "x"
 # Params
 HASH_UID = "hash_uid"
 PUB_KEY = "pub_key"
+RESPONSE = "response"
 
 # Misc.
 PADDING = "padding"
@@ -59,14 +60,20 @@ def serialize(message):
 def deserialize(message):
     return yaml.safe_load_all(message)
 
+def bc_expecting_pub_key(messages):
+    for message in messages:
+        if message.get(TYPE) == NEW_TXN:
+            return True
+        return False
+
+def hosp_expecting_pub_key(messages):
+    for message in messages:
+        if message.get(TYPE) == GET_BLOCK:
+            return True
+        return False
+
 def requires_response(messages):
     for message in messages:
         if message.get(TYPE) == CONTAINS_HASH_UID or message.get(TYPE) == GET_BLOCK:
             return True
         return False
-
-def handle_response(message):
-    print(message)
-    if message.get(TYPE) == CONTAINS_HASH_UID or message.get(TYPE) == GET_BLOCK:
-        return message.get(RESPONSE)
-    return None

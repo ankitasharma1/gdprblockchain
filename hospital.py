@@ -52,20 +52,30 @@ class Hospital:
         s.close()
         return 0
 
-    def send_message_to_bc(self, msg):
+    def send_message_to_bc(self, msg, pub_key=None):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((self.bc_address, self.bc_port))
-            print("Connected to %s:%s" %(self.bc_address, self.bc_port))
+            #print("Connected to %s:%s" %(self.bc_address, self.bc_port))
             s.send(msg)
+            # Send public key if bc is expecting it.
+            if bc_msg.bc_expecting_pub_key(bc_msg.deserialize(msg)):
+                if pub_key:
+                    s.send(pub_key.exportKey(format='PEM', passphrase=None, pkcs=1))
+                else:
+                    print("ERROR: BC expecting public key")            
             # Check to see if message requires a response.
             if bc_msg.requires_response(bc_msg.deserialize(msg)):
+                # Check if we are receiving a pub key.                       
+                if bc_msg.hosp_expecting_pub_key(bc_msg.deserialize(msg)):
+                    return RSA.importKey(s.recv(1024), passphrase=None)
+                # Receiving a normal json response.                        
                 data = s.recv(bc_msg.MESSAGE_SIZE)  
                 if data:
                     messages = bc_msg.deserialize(data)
                     for message in messages:
                         s.close()
-                        return bc_msg.handle_response(message)
+                        return message.get(bc_msg.RESPONSE)
          
             """    
             print("Connected to %s:%s" %(self.bc_address, self.bc_port))
@@ -101,6 +111,7 @@ class Hospital:
         uid = patient_name + patient_id
         hash_uid = hash(uid)
         # Check if hashed uid resides on public blockchain.
+        print(">>> Sending request to bc to check if %s exists in blockchain" %(hash_uid))
         response = self.send_message_to_bc(bc_msg.contains_hash_uid_msg(hash_uid))
         if response == ERROR:
             return None
@@ -324,7 +335,9 @@ class Hospital:
         :param: pub_key: Patient public key
         :return: nothing
         """
-        self.send_message_to_bc(bc_msg.new_txn(hash_uid, pub_key))
+        print(">>> Sending request to bc to add new txn")
+        self.send_message_to_bc(bc_msg.new_txn(hash_uid, ""), pub_key)
+        print(">>> Sending request to bc to mine the new txn")
         self.send_message_to_bc(bc_msg.mine()) 
 
     def valid_phy(self, phy):

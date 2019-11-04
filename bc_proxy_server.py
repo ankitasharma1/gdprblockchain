@@ -68,7 +68,7 @@ def repl(s, cv):
             elif command == PRINT:
                 bc.print_blockchain()
             else:
-                print("Supported Commands: " + EXIT)
+                print("Supported Commands: " + EXIT + " " + PRINT)
         except Exception, e:
             pass
 
@@ -88,6 +88,7 @@ def handle_connection(s):
 def listen_on_socket(c):
     while True:
         try:
+            """
             pub_key = RSA.importKey(c.recv(1024), passphrase=None)
             print(pub_key)
             print(pub_key.n.bit_length())
@@ -97,13 +98,19 @@ def listen_on_socket(c):
             if data:
                 messages = bc_msg.deserialize(data)
                 for message in messages:
+                    # If we are expecting to receive a public key.
+                    if bc_msg.bc_expecting_pub_key(bc_msg.deserialize(data)):
+                        # Wait for it.
+                        pub_key = RSA.importKey(c.recv(1024), passphrase=None)
+                        # Update the payload.
+                        message.update({bc_msg.PUB_KEY:pub_key})
                     response = handle_message(message)
                     if response:
                         c.send(response)
             else:
                 return clean_up(c)
-            """
         except Exception, e:
+            print(e)
             return clean_up(c)
 
 def handle_message(message):
@@ -111,24 +118,23 @@ def handle_message(message):
     if type == bc_msg.CONTAINS_HASH_UID:
         hash_uid = message.get(bc_msg.HASH_UID)
         print("-------> Servicing request to check if %s exists in the blockchain" %(hash_uid))
-        response = blockchain.contains_hash_uid(hash_uid)
-        print("Returning %s " %(response))
-        return bc_msg.contains_hash_uid_response(response)
+        response = bc.contains_hash_uid(hash_uid)
+        return bc_msg.contains_hash_uid_msg_response(response)
     elif type == bc_msg.GET_BLOCK:
         hash_uid = message.get(bc_msg.HASH_UID)
         print("-------> Servicing request to obtain block for %s" %(hash_uid))
-        response = blockchain.get_block(hash_uid)
+        response = bc.get_block_response(hash_uid)
         print("Returning %s " %(response))
         return bc_msg.get_block_response(response)
     elif type == bc_msg.NEW_TXN:
         hash_uid = message.get(bc_msg.HASH_UID)
         pub_key = message.get(bc_msg.PUB_KEY)
         print("-------> Servicing request to insert new transaction with hash_uid:%s pub_key:%s" %(hash_uid, pub_key))
-        blockchain.new_transaction(hash_uid, pub_key)
+        bc.new_transaction(hash_uid, pub_key)
         return None
     elif type == bc_msg.MINE:
         print("-------> Servicing request to mine the blockchain")
-        blockchain.mine()
+        bc.mine()
         return None
     else:
         print("Unable to service request, invalid message: %d" %(type))
