@@ -13,7 +13,7 @@ def parse(path):
     :param path: path to config file    
     """
     # Create the blockchain.
-    blockchain = Blockchain()
+    #blockchain = Blockchain()
 
     with open(path, 'r') as f:
         doc = yaml.load(f)
@@ -32,7 +32,7 @@ def parse(path):
     for hospital in hospitals:
         address = hospitals[hospital]['address']
         port = hospitals[hospital]['port']
-        h.append(Hospital(hospital, blockchain))
+        h.append(Hospital(hospital, bc_address, bc_port))
 
     # Physicians.
     ph = []
@@ -50,7 +50,23 @@ def parse(path):
         port = patients[patient]['port']
         pa.append(Patient(patients[patient]['name'], patients[patient]['patient_id']))
 
+    connect(h, ph, pa)
     #simulate(h, ph, pa)
+
+def connect(hospitals, physicians, patients):
+    h1 = hospitals[0]
+    h2 = hospitals[1]
+    h3 = hospitals[2]
+        
+    ph1 = physicians[0]
+    ph2 = physicians[1]
+    ph3 = physicians[2]
+
+    pa1 = patients[0]
+    pa2 = patients[1]
+    pa3 = patients[2]
+
+    h1.connect_to_bc()
 
 """
 Helper function to simulate interactions.

@@ -3,7 +3,7 @@ import socket
 from threading import Thread
 from threading import Condition
 import sys
-import time
+import bc_msg
 
 """
 Supported Commands
@@ -53,15 +53,20 @@ def repl(s, cv):
     print("Kicking off REPL")
     while True:
         commands = sys.stdin.readline().split()
-        command = commands[0]
-        if command == EXIT:
-            # Close the socket.
-            s.close()
-            cv.acquire()
-            # Notify main thread that user would like to exit.
-            cv.notify()
-            cv.release()
-            return
+        try:
+            command = commands[0]
+            if command == EXIT:
+                # Close the socket.
+                s.close()
+                cv.acquire()
+                # Notify main thread that user would like to exit.
+                cv.notify()
+                cv.release()
+                return
+            else:
+                print("Supported Commands: " + EXIT)
+        except Exception, e:
+            pass
 
 def handle_connection(s):
     while True:
@@ -73,13 +78,25 @@ def handle_connection(s):
             t.daemon = True
             t.start()
         except Exception, e:
-            print(e)
+            #print(e)
             return
 
 def listen_on_socket(c):
-    while True:
-        x = 5
-    # Close connection when exiting thread.
-    c.close()
+    size = bc_msg.MESSAGE_SIZE
 
+    while True:
+        try:
+            data = c.recv(size)
+            if data:
+                messages = bc_msg.deserialize(data)
+                for message in messages:
+                    print(message)
+            else:
+                return clean_up(c)
+        except Exception, e:
+            return clean_up(c)
+
+def clean_up(c):
+    print("Closing connection")
+    c.close()
 main()

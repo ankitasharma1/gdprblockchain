@@ -1,20 +1,23 @@
 import crypto
 from hasher import hash
 from medical_record import MedicalRecord
-import csv
+import socket
+import bc_msg
 
 class Hospital:
     """
     Hospital is the point of communication for the patient and physician. It is also responsbile for interacting with the public blockchain.
     """
-    def __init__(self, name, blockchain):
+    def __init__(self, name, bc_address, bc_port):
         """
         Construct a new Hospital object.
         :param name: Hospital name
-        :param blockchain: Means to access the blockchain
+        :param bc_address: Blockchain proxy server address
+        :param bc_port: Blockchain proxy server port
         """
         self.name = name
-        self.blockchain = blockchain
+        self.bc_address = bc_address
+        self.bc_port = int(bc_port)
         self.db = dict()
         self.address = None
         self.port = None
@@ -23,6 +26,19 @@ class Hospital:
     """
     API Implementations.
     """
+    def connect_to_bc(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((self.bc_address, self.bc_port))
+            print("Connected to %s:%s" %(self.bc_address, self.bc_port))
+            s.send(bc_msg.contains_hash_uid_msg("XXXX"))
+            s.send(bc_msg.get_block("XXXX"))
+            s.send(bc_msg.new_txn("XXXX", "YYYY"))
+            s.send(bc_msg.mine())
+        except Exception, e:
+            print(e)
+            s.close()
+        s.close()
 
     def register_physician(self, uid):
         """
