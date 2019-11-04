@@ -90,6 +90,8 @@ def listen_on_socket(c):
         try:
             pub_key = RSA.importKey(c.recv(1024), passphrase=None)
             print(pub_key)
+            print(pub_key.n.bit_length())
+            c.send(pub_key.exportKey(format='PEM', passphrase=None, pkcs=1))
             """
             data = c.recv(bc_msg.MESSAGE_SIZE)
             if data:

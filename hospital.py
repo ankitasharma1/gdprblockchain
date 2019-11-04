@@ -4,6 +4,8 @@ from medical_record import MedicalRecord
 import socket
 import bc_msg
 from constants import ERROR
+from Crypto.PublicKey import RSA
+import time
 
 class Hospital:
     """
@@ -36,6 +38,15 @@ class Hospital:
             s.connect((self.bc_address, self.bc_port))
             print("Connected to %s:%s" %(self.bc_address, self.bc_port))
             s.send(pub_key.exportKey(format='PEM', passphrase=None, pkcs=1))
+            print("---- Sending pub key")
+            new_pub_key = RSA.importKey(s.recv(1024), passphrase=None)
+            print("---- Received pub key")
+            print(new_pub_key)
+            assert(pub_key == new_pub_key)
+            print("---- Encrypting with new pub key")
+            encrypted = crypto.encrypt("hiii", new_pub_key)
+            print("---- I should be able to decrypt what was encrypted by the returned key")
+            print(crypto.decrypt(encrypted, priv_key))
         except Exception, e:
             print(e)                       
         s.close()
