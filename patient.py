@@ -7,14 +7,25 @@ PATIENT_ID = "patient_id"
 HOSPITAL = "hospital"
 
 class Patient:
+    """
+    Patient can issue requests to the hospital and physicians.
+    """
     def __init__(self, name, patient_id):
+        """
+        Construct a new Patient object.
+        :param name: Patient name
+        :param patient_id: Patient id
+        """
         self.name = name
         self.patient_id = patient_id
-        # TODO: Stretch Goal - keep track of their own records.
-        self.record_path = None
         self.card = None
 
-    def register(self, hospital):        
+    def register(self, hospital): 
+        """
+        Function to register with a hospital.
+        :param hospital: Hospital
+        :return: boolean
+        """       
         if self.card == None:
             self.card = hospital.register_patient(self.name, self.patient_id)
             if self.card:
@@ -23,9 +34,20 @@ class Patient:
                 return False 
 
     def seek_treatment(self, physician, hospital):
+        """
+        Function for a patient to seek treatment from a physician.
+        :param physician: Physician
+        :param hospital: Hospital TODO: This will not be needed later.
+        :return: nothing
+        """       
         physician.seek_treatment(self.card, hospital)
 
     def read(self, hospital):
+        """
+        Function for a patient to read all of their data.
+        :param hospital: Hospital
+        :return: nothing
+        """       
         if self.card:
             records = hospital.read(self.card.uid)
         if records:
@@ -34,6 +56,12 @@ class Patient:
 		        print(record)               
 
     def read_medical_record(self, physician, hospital):
+        """
+        Function for a patient to give a physician permission to read their data.
+        :param physician: Physician
+        :param hospital: Hospital
+        :return: nothing
+        """       
         if self.card:
             physician.read_patient_record(self.card, hospital)
         

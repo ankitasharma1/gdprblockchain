@@ -20,6 +20,7 @@ class Physician():
         """
         Register with a hospital.
         :param hospita: hospital
+        :return: nothing
         """
         hospital.register_physician(self.physician_id)
         self.hospitals.append(hospital.name)
@@ -28,14 +29,20 @@ class Physician():
         """
         Function to handle patient request and to write to hospital db k,v store.
         :param card: Patient card
+        :param hospital: Hospital TODO: This will not be needed later.
+        :return: nothing
         """
-        # Record visit.
         medical_record = MedicalRecord(self.name)
         medical_record.notes = "Patient looks good to me."
-        # Hospital is responsible for adding the new record.
         hospital.write(card, medical_record, self.physician_id)          
 
     def read_patient_record(self, card, hospital):
+        """
+        Function to handle patient issuing request for physician to read their medical data.
+        :param card: Patient card
+        :param hospital: Hospital TODO: This will not be needed later.
+        :return: nothing
+        """
         if not self.hospital_affiliation_valid(hospital):
             print("ERROR: physician not registered with hospital")
             return False            
@@ -46,6 +53,11 @@ class Physician():
 		        print(record)               
  
     def hospital_affiliation_valid(self, hospital):
+        """
+        Function to validate that physician is registered with the hospital.
+        :param: hospital: Hospital
+        :return: boolean
+        """
         if hospital.name in self.hospitals:
             return True
         return False
