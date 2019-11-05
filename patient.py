@@ -42,7 +42,9 @@ class Patient:
         :param hospital: Hospital TODO: This will not be needed later.
         :return: nothing
         """       
-        physician.seek_treatment(self.card, hospital)
+        if (physician.seek_treatment(self.card, hospital)):
+            return True
+        return False
 
     def read(self, hospital):
         """

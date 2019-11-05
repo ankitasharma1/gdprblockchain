@@ -67,17 +67,23 @@ def connect(hospitals, physicians, patients):
     pa2 = patients[1]
     pa3 = patients[2]
 
+    """
     print("------REGISTRATION")
     pa1.register(h1)
-
     # Give some time for the blockchain to update.
     time.sleep(5)
-
     pa1.card = None
-    print("------DUP REGISTRATION")    
+    print("------DUP REGISTRATION") 
+    pa1.register(h2)
+    """
+   
     pa2.register(h2)
-    
-    #test_reg_wr_rd(pa2, ph1, h1)
+    ph1.register(h2)
+    # Give some time for the blockchain to update.
+    time.sleep(10)
+    if pa2.seek_treatment(ph1, h2):
+        time.sleep(6)
+        pa2.read(h2)
 
 """
 Helper function to simulate interactions.

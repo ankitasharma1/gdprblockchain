@@ -106,7 +106,11 @@ def listen_on_socket(c):
                         message.update({bc_msg.PUB_KEY:pub_key})
                     response = handle_message(message)
                     if response:
-                        c.send(response)
+                        # Send public key if hospital is expecting it.
+                        if bc_msg.hosp_expecting_pub_key(bc_msg.deserialize(data)):
+                            c.send(response.exportKey(format='PEM', passphrase=None, pkcs=1))
+                        else:
+                            c.send(response)
             else:
                 return clean_up(c)
         except Exception, e:
@@ -120,12 +124,12 @@ def handle_message(message):
         print("-------> Servicing request to check if %s exists in the blockchain" %(hash_uid))
         response = bc.contains_hash_uid(hash_uid)
         return bc_msg.contains_hash_uid_msg_response(response)
-    elif type == bc_msg.GET_BLOCK:
+    elif type == bc_msg.GET_PUB_KEY:
         hash_uid = message.get(bc_msg.HASH_UID)
         print("-------> Servicing request to obtain block for %s" %(hash_uid))
-        response = bc.get_block_response(hash_uid)
-        print("Returning %s " %(response))
-        return bc_msg.get_block_response(response)
+        pub_key = bc.get_pub_key(hash_uid)
+        print("Returning %s " %(pub_key))
+        return pub_key
     elif type == bc_msg.NEW_TXN:
         hash_uid = message.get(bc_msg.HASH_UID)
         pub_key = message.get(bc_msg.PUB_KEY)

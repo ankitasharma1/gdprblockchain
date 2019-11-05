@@ -80,7 +80,7 @@ class Hospital:
             """    
             print("Connected to %s:%s" %(self.bc_address, self.bc_port))
             s.send(bc_msg.contains_hash_uid_msg("XXXX"))
-            s.send(bc_msg.get_block("XXXX"))
+            s.send(bc_msg.get_pub_key("XXXX"))
             s.send(bc_msg.new_txn("XXXX", "YYYY"))
             s.send(bc_msg.mine())
             """
@@ -142,10 +142,12 @@ class Hospital:
         if not self.valid_card(card):
             return False
         # Obtain the hash index. 
-        hash_id = hash(card.uid)
+        hash_uid = hash(card.uid)
         # Get the public key from the public blockchain.
-        block = self.blockchain.get_block(hash_id)
-        pub_key = block.pub_key
+        print(">>> Sending request to get pub_key for write request")
+        pub_key = self.send_message_to_bc(bc_msg.get_pub_key(hash_uid))
+        if not pub_key:
+            return False
         # The encrypted uid corresponds to the key in the hospital k,v store.
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
         # Confirm that data belongs to the card holder.
@@ -174,11 +176,11 @@ class Hospital:
         :return: encrypted medical records
         """
         # Obtain the hash index. 
-        hash_id = hash(uid)
+        hash_uid = hash(uid)
         # Get the public key from the public blockchain.
-        block = self.blockchain.get_block(hash_id)
-        if block:        
-            pub_key = block.pub_key
+        print(">>> Sending request to get pub_key for read request")
+        pub_key = self.send_message_to_bc(bc_msg.get_pub_key(hash_uid))
+        if pub_key:        
             # The encrypted uid corresponds to the key in the hospital k,v store.
             hosp_db_key = crypto.encrypt(uid, pub_key)
             blocks = self.get_blocks(hosp_db_key)
@@ -198,10 +200,10 @@ class Hospital:
         if not self.valid_card(card):
             return False
         # Obtain the hash index. 
-        hash_id = hash(card.uid)
+        hash_uid = hash(card.uid)
         # Get the public key from the public blockchain.
-        block = self.blockchain.get_block(hash_id)
-        pub_key = block.pub_key
+        print(">>> Sending request to get pub_key for write request")
+        pub_key = self.send_message_to_bc(bc_msg.get_pub_key(hash_uid))
         # The encrypted uid corresponds to the key in the hospital k,v store.
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
         # Confirm that data belongs to the card holder.
@@ -225,8 +227,8 @@ class Hospital:
         # Obtain the hash index. 
         hash_id = hash(card.uid)
         # Get the public key from the public blockchain.
-        block = self.blockchain.get_block(hash_id)
-        pub_key = block.pub_key
+        print(">>> Sending request to get pub_key for write request")
+        pub_key = self.send_message_to_bc(bc_msg.get_pub_key(hash_uid))
         # The encrypted uid corresponds to the key in the hospital k,v store.
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
         # Confirm that data belongs to the card holder.
@@ -286,10 +288,13 @@ class Hospital:
         :param card: patient card
         :return: boolean
         """
-        if card.hospital_name != self.name:
-            print("ERROR: invalid request to write")
-            return False
-        return True
+        if card:
+            if card.hospital_name != self.name:
+                print("ERROR: invalid card")
+                return False
+            return True
+        print("ERROR: no card provided")
+        return False
 
     def merge(self, prev, curr):
         """

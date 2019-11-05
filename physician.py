@@ -30,11 +30,16 @@ class Physician():
         Function to handle patient request and to write to hospital db k,v store.
         :param card: Patient card
         :param hospital: Hospital TODO: This will not be needed later.
-        :return: nothing
+        :return: boolean
         """
         medical_record = MedicalRecord(self.name, card)
         medical_record.notes = "Patient looks good to me."
-        hospital.write(card, medical_record, self.physician_id)          
+        if hospital.write(card, medical_record, self.physician_id) :
+            print("Successfully wrote to hospital db")
+            return True
+        else:
+            print("Write was not successful")  
+            return False       
 
     def read_patient_record(self, card, hospital):
         """

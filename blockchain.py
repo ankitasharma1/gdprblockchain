@@ -136,6 +136,7 @@ class Blockchain:
             self.chain.append(block)
             return True
         if (block.previous_hash == self.get_last_hash()):
+            print("\n\n>>>>> Adding %s to the chain <<<<<<\n\n" %(block.hash_id))
             self.chain.append(block)
             return True        
         return False
@@ -175,12 +176,12 @@ class Blockchain:
                 return True
         return False
 
-   # Return block for given hash.
-    def get_block(self, hash_uid):
+   # Return public key stored in block for given hash.
+    def get_pub_key(self, hash_uid):
         for block in self.chain:
             if block.hash_id == hash_uid:
-                return block
-        return none
+                return block.pub_key
+        return None
 
     # Print public blockchain.
     def print_blockchain(self):

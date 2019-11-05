@@ -5,8 +5,8 @@ import yaml
 TYPE = "type"
 CONTAINS_HASH_UID = "contains_hash_uid"
 CONTAINS_HASH_UID_RESPONSE = "contains_hash_uid_response"
-GET_BLOCK = "get_block"
-GET_BLOCK_RESPONSE = "get_block_response"
+GET_PUB_KEY = "get_pub_key"
+GET_PUB_KEY_RESPONSE = "get_pub_key_response"
 NEW_TXN = "new_txn"
 MINE = "mine"
 
@@ -29,12 +29,13 @@ def contains_hash_uid_msg_response(response):
     message = {TYPE: CONTAINS_HASH_UID_RESPONSE, RESPONSE: response}
     return json.dumps(serialize(message))
 
-def get_block(hash_uid):
-    message = {TYPE: GET_BLOCK, HASH_UID: hash_uid}
+def get_pub_key(hash_uid):
+    message = {TYPE: GET_PUB_KEY, HASH_UID: hash_uid}
     return json.dumps(serialize(message))
 
-def get_block_response(response):
-    message = {TYPE: GET_BLOCK_RESPONSE, RESPONSE: response}
+# Deprecated - pub_keys are not json serializable.
+def get_pub_key_response(response):
+    message = {TYPE: GET_PUB_KEY, RESPONSE: response}
     return json.dumps(serialize(message))
 
 def new_txn(hash_uid, pub_key):
@@ -68,12 +69,12 @@ def bc_expecting_pub_key(messages):
 
 def hosp_expecting_pub_key(messages):
     for message in messages:
-        if message.get(TYPE) == GET_BLOCK:
+        if message.get(TYPE) == GET_PUB_KEY:
             return True
         return False
 
 def requires_response(messages):
     for message in messages:
-        if message.get(TYPE) == CONTAINS_HASH_UID or message.get(TYPE) == GET_BLOCK:
+        if message.get(TYPE) == CONTAINS_HASH_UID or message.get(TYPE) == GET_PUB_KEY:
             return True
         return False
