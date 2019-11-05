@@ -67,23 +67,60 @@ def connect(hospitals, physicians, patients):
     pa2 = patients[1]
     pa3 = patients[2]
 
+    
     """
     print("------REGISTRATION")
     pa1.register(h1)
     # Give some time for the blockchain to update.
     time.sleep(5)
     pa1.card = None
-    print("------DUP REGISTRATION") 
+    print("\n\n------DUP REGISTRATION") 
     pa1.register(h2)
-    """
-   
+
     pa2.register(h2)
     ph1.register(h2)
     # Give some time for the blockchain to update.
     time.sleep(10)
     if pa2.seek_treatment(ph1, h2):
         time.sleep(6)
+        print("---- READ AFTER PHYSICIAN HAS WRITTEN")
         pa2.read(h2)
+        print("---- READ FROM ANOTHER HOSPITAL")
+        pa2.read(h1)
+
+    print("\n\n---------> Test that physician can read patient's records")
+    # Test that physician can read medical records for patient.
+    pa2.read_medical_record(ph1, h2)
+
+    
+    print("\n\n---------> Remove patient data")
+    # Remove patient data.
+    assert(pa2.remove(h2) == True)
+    print("\n\n---------> Read removed data")
+    # Try to read data.
+    pa2.read(h2)
+    """
+
+    print("---------> \n\n Test patient request to transfer")
+    pa3.register(h1)
+    ph3.register(h1)
+    print("---------> Read from h1")
+    time.sleep(10)
+    pa3.seek_treatment(ph3, h1)
+    pa3.read(h1)
+    print("---------> Read from h3")
+    assert(pa3.transfer(h1, h3) == True)
+    pa3.read(h3)
+
+    print("---------> \n\n Test that card got updated")
+    ph3.register(h3)
+    time.sleep(10)
+    pa3.seek_treatment(ph3, h3)
+    pa3.read(h3)
+
+    print("---------> \n\n Test that physician can request to transfer")
+    assert(pa3.transfer_medical_record(h3, h2, ph3) == True) 
+    pa3.read(h2) 
 
 """
 Helper function to simulate interactions.

@@ -22,8 +22,9 @@ class Physician():
         :param hospita: hospital
         :return: nothing
         """
-        hospital.register_physician(self.physician_id)
-        self.hospitals.append(hospital.name)
+        if hospital.register_physician(self.physician_id):
+            self.hospitals.append(hospital.name)
+            print("%s registered with %s" %(self.name, hospital.name))
 
     def seek_treatment(self, card, hospital):
         """

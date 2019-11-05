@@ -54,10 +54,10 @@ class Patient:
         """       
         if self.card:
             records = hospital.read(self.card.uid)
-        if records:
-		    for record in records:
-		        record = crypto.decrypt(record, self.card.priv_key)
-		        print(record)               
+            if records:
+		        for record in records:
+		            record = crypto.decrypt(record, self.card.priv_key)
+		            print(record)               
 
     def read_medical_record(self, physician, hospital):
         """

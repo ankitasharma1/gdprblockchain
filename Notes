@@ -3,3 +3,8 @@
 * Patients are associated with only one hospital
 * Medical records should be mandatory like date, signature, etc.
 * DNS for hospital names
+
+* Sometimes public key doesn't get returned if block is added after request/registration
+* error checking for sending and receiving, blocking receiving, wait for a response
+* return none or public key
+* Just hangs when expecting a rsa key and none is returned from the bc server

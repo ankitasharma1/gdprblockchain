@@ -29,29 +29,6 @@ class Hospital:
     """
     API Implementations.
     """
-    def send_pub_key(self):
-        priv_key, pub_key = crypto.generate_keys()
-        print(pub_key.n.bit_length())
-        print(pub_key)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect((self.bc_address, self.bc_port))
-            print("Connected to %s:%s" %(self.bc_address, self.bc_port))
-            s.send(pub_key.exportKey(format='PEM', passphrase=None, pkcs=1))
-            print("---- Sending pub key")
-            new_pub_key = RSA.importKey(s.recv(1024), passphrase=None)
-            print("---- Received pub key")
-            print(new_pub_key)
-            assert(pub_key == new_pub_key)
-            print("---- Encrypting with new pub key")
-            encrypted = crypto.encrypt("hiii", new_pub_key)
-            print("---- I should be able to decrypt what was encrypted by the returned key")
-            print(crypto.decrypt(encrypted, priv_key))
-        except Exception, e:
-            print(e)                       
-        s.close()
-        return 0
-
     def send_message_to_bc(self, msg, pub_key=None):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -76,14 +53,6 @@ class Hospital:
                     for message in messages:
                         s.close()
                         return message.get(bc_msg.RESPONSE)
-         
-            """    
-            print("Connected to %s:%s" %(self.bc_address, self.bc_port))
-            s.send(bc_msg.contains_hash_uid_msg("XXXX"))
-            s.send(bc_msg.get_pub_key("XXXX"))
-            s.send(bc_msg.new_txn("XXXX", "YYYY"))
-            s.send(bc_msg.mine())
-            """
         except Exception, e:
             print(e)
             print("ERROR: unable to send request %s to blockchain server" %(msg))
@@ -97,9 +66,10 @@ class Hospital:
         """
         Function that registers a physician.
         :param uid: Physician uid
-        :return: nothing
+        :return: boolean
         """
         self.staff.append(uid)
+        return True
 
     def register_patient(self, patient_name, patient_id):
         """
@@ -202,7 +172,7 @@ class Hospital:
         # Obtain the hash index. 
         hash_uid = hash(card.uid)
         # Get the public key from the public blockchain.
-        print(">>> Sending request to get pub_key for write request")
+        print(">>> Sending request to get pub_key for remove request")
         pub_key = self.send_message_to_bc(bc_msg.get_pub_key(hash_uid))
         # The encrypted uid corresponds to the key in the hospital k,v store.
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
@@ -225,9 +195,9 @@ class Hospital:
         if not self.valid_card(card):
             return False
         # Obtain the hash index. 
-        hash_id = hash(card.uid)
+        hash_uid = hash(card.uid)
         # Get the public key from the public blockchain.
-        print(">>> Sending request to get pub_key for write request")
+        print(">>> Sending request to get pub_key for read request")
         pub_key = self.send_message_to_bc(bc_msg.get_pub_key(hash_uid))
         # The encrypted uid corresponds to the key in the hospital k,v store.
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
