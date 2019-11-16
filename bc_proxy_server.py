@@ -140,4 +140,5 @@ def handle_message(message):
 def clean_up(c):
     print("Closing connection")
     c.close()
+
 main()
