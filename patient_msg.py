@@ -1,27 +1,17 @@
 import json
 import yaml
+from constants import MESSAGE_SIZE
+import constants
 
 # Message Type
 TYPE = "type"
+REGISTER = "register"
 
-MESSAGE_SIZE = 256
-NOP = "x"
+# Params
+PATIENT_NAME = "patient_name"
+PATIENT_ID = "patient_id"
 
-# Misc.
-PADDING = "padding"
-
-def serialize(message):
-    i = 0
-    padding = NOP
-    if (len(json.dumps(message)) > MESSAGE_SIZE):
-        print("ERROR: unable to serialize message")
-        return message
-    while i < MESSAGE_SIZE:
-        message.update({PADDING: padding * i})
-        if len(json.dumps(message)) == MESSAGE_SIZE:
-            return message
-        i = i + 1
-
-def deserialize(message):
-    return yaml.safe_load_all(message)
+def register_msg(patient_name, patient_id):
+    message = {TYPE: REGISTER, PATIENT_NAME: patient_name, PATIENT_ID: patient_id}
+    return json.dumps(constants.serialize(message))
 

@@ -1,6 +1,7 @@
 import socket
 from threading import Thread
 import crypto
+import patient_msg
 
 NAME = "name"
 PATIENT_ID = "patient_id"
@@ -20,14 +21,31 @@ class Patient:
         self.patient_id = patient_id
         self.card = None
 
-    def register(self, hospital): 
+    def send_msg(self, msg, address, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((address, port))
+            s.send(msg)
+        except Exception, e:
+            print(e)
+            print("ERROR: unable to send request %s" %(msg))
+            s.close()
+            return ERROR
+            
+        s.close()
+        return 0
+
+    def register(self, hospital_address, hospital_port): 
         """
         Function to register with a hospital.
         :param hospital: Hospital
         :return: boolean
         """       
         if self.card == None:
-            self.card = hospital.register_patient(self.name, self.patient_id)
+            self.send_msg(patient_msg.register_msg(self.name, self.patient_id), hospital_address, hospital_port)
+            # UPDATE #
+            return
+            #self.card = hospital.register_patient(self.name, self.patient_id)
             if self.card:
                 print("Obtained card from hospital")
                 return True

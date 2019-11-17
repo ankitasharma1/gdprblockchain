@@ -1,6 +1,6 @@
 import socket
 import sys
-from patient import Patient
+from hospital import Hospital
 from parser import Parser
 from threading import Thread
 from threading import Condition
@@ -13,19 +13,8 @@ import constants
 Supported Commands
 """
 EXIT = 'exit'
-REGISTER = 'reg'
-REMOVE = 'rm'
-TREATMENT = 'treatment'
-TRANSFER = 'transfer'
-PHYSICIANS = 'phys'
-HOSPITALS = 'hosp'
 
-"""
-Supported Commands Params
-"""
-NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
-
-p = None
+h = None
 parser = Parser()
 
 def main():
@@ -34,18 +23,18 @@ def main():
     """
     arguments = sys.argv
     if len(arguments) < 2:
-        print("ERROR: missing argument - %s" %(parser.get_patient_names_string()))
+        print("ERROR: missing argument - %s" %(parser.get_hosp_names_string()))
         return
 
-    patient_name = arguments[1]
+    hospital_name = arguments[1]
 
-    if not parser.valid_patient(patient_name):
-        print("ERROR: invalid argument - %s" %(parser.get_patient_names_string()))
+    if not parser.valid_hosp(hospital_name):
+        print("ERROR: invalid argument - %s" %(parser.get_hosp_names_string()))
         return
 
     # Construct patient using info. from parser.
-    p = Patient(patient_name, parser.get_patient_id(patient_name))
-    contact_info = parser.get_patient_contact_info(patient_name)
+    h = Hospital(hospital_name, parser.get_bc_contact_info()[ADDRESS], parser.get_bc_contact_info()[PORT])
+    contact_info = parser.get_hosp_contact_info(hospital_name)
     address = contact_info[ADDRESS]
     port = contact_info[PORT]
 
@@ -62,7 +51,7 @@ def main():
     print("Socket is listening")
 
     # Spawn repl thread.
-    print("Starting repl for %s." %(patient_name))
+    print("Starting repl for %s." %(hospital_name))
     t = Thread(target=repl, args=(s, cv))
     t.daemon = True
     t.start()
@@ -94,29 +83,10 @@ def repl(s, cv):
                 cv.notify()
                 cv.release()
                 return
-            elif command == PHYSICIANS:
-                print(parser.get_phys_names_string())
-            elif command == HOSPITALS:
-                print(parser.get_hosp_names_string())
-            elif command == REGISTER:
-                if len(commands) != NUM_REGISTER_PARAMS:
-                    print( "Usage: reg [hospital name]")
-                    continue
-                hospital_name = commands[1]
-                register(hospital_name)
             else:
-                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + HOSPITALS + ", " + REGISTER +"]")
+                print("Supported Commands: [" + EXIT +"]")
         except Exception, e:
             print(e)
-
-def register(hosp_name):
-    if not parser.valid_hosp(hosp_name):
-        print("ERROR: invalid hospital - %s" %(parser.get_hosp_names_string()))
-        return
-
-    hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
-    p.register(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
-    return
 
 def handle_connection(s):
     while True:

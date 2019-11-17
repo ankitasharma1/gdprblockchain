@@ -5,6 +5,7 @@ from threading import Condition
 import sys
 import bc_msg
 from Crypto.PublicKey import RSA
+from constants import MESSAGE_SIZE
 
 """
 Supported Commands
@@ -68,7 +69,7 @@ def repl(s, cv):
             elif command == PRINT:
                 bc.print_blockchain()
             else:
-                print("Supported Commands: " + EXIT + " " + PRINT)
+                print("Supported Commands: [" + EXIT + ", " + PRINT + "]")
         except Exception, e:
             pass
 
@@ -88,7 +89,7 @@ def handle_connection(s):
 def listen_on_socket(c):
     while True:
         try:
-            data = c.recv(bc_msg.MESSAGE_SIZE)
+            data = c.recv(MESSAGE_SIZE)
             if data:
                 messages = bc_msg.deserialize(data)
                 for message in messages:

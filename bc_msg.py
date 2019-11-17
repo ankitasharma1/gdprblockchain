@@ -1,5 +1,6 @@
 import json
 import yaml
+from constants import MESSAGE_SIZE
 
 # Message Type
 TYPE = "type"
@@ -10,7 +11,6 @@ GET_PUB_KEY_RESPONSE = "get_pub_key_response"
 NEW_TXN = "new_txn"
 MINE = "mine"
 
-MESSAGE_SIZE = 256
 NOP = "x"
 
 # Params
@@ -46,20 +46,7 @@ def mine():
     message = {TYPE: MINE}
     return json.dumps(serialize(message))
 
-def serialize(message):
-    i = 0
-    padding = NOP
-    if (len(json.dumps(message)) > MESSAGE_SIZE):
-        print("ERROR: unable to serialize message")
-        return message
-    while i < MESSAGE_SIZE:
-        message.update({PADDING: padding * i})
-        if len(json.dumps(message)) == MESSAGE_SIZE:
-            return message
-        i = i + 1
 
-def deserialize(message):
-    return yaml.safe_load_all(message)
 
 def bc_expecting_pub_key(messages):
     for message in messages:
@@ -78,3 +65,19 @@ def requires_response(messages):
         if message.get(TYPE) == CONTAINS_HASH_UID or message.get(TYPE) == GET_PUB_KEY:
             return True
         return False
+
+def serialize(message):
+    i = 0
+    padding = NOP
+    if (len(json.dumps(message)) > MESSAGE_SIZE):
+        print("ERROR: unable to serialize message")
+        return message
+    while i < MESSAGE_SIZE:
+        message.update({PADDING: padding * i})
+        if len(json.dumps(message)) == MESSAGE_SIZE:
+            return message
+        i = i + 1
+
+def deserialize(message):
+    return yaml.safe_load_all(message)
+

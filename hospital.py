@@ -22,8 +22,6 @@ class Hospital:
         self.bc_address = bc_address
         self.bc_port = int(bc_port)
         self.db = dict()
-        self.address = None
-        self.port = None
         self.staff = []
 
     """
