@@ -53,26 +53,26 @@ class Patient:
     def register(self, hospital_address, hospital_port): 
         """
         Function to register with a hospital.
-        :param hospital: Hospital
+        :param hospital_address: Hospital address
+        :param hospital_port: Hospital port
         :return: boolean
         """       
-        if self.card == None:
-            response = self.send_msg(patient_msg.register_msg(self.name, self.patient_id), hospital_address, hospital_port)
-            if isinstance(response , int):
-                print("ERROR: Hospital server error")
-                return
-            if response.get(constants.TYPE) != patient_msg.REGISTER_RESPONSE:
-                print("ERROR: incorrect response type from hospital, should have received %s" %(patient_msg.REGISTER_RESPONSE))
-                return
+        response = self.send_msg(patient_msg.register_msg(self.name, self.patient_id), hospital_address, hospital_port)
+        if isinstance(response , int):
+            print("ERROR: Hospital server error")
+            return
+        if response.get(constants.TYPE) != patient_msg.REGISTER_RESPONSE:
+            print("ERROR: incorrect response type from hospital, should have received %s" %(patient_msg.REGISTER_RESPONSE))
+            return
 
-            # Hospital returns a boolean.
-            if response.get(patient_msg.RESPONSE):
-                print("Obtained card from hospital.")
-                self.card = card_helper.get_card_object(self.card_path)
-                return True
-            else:
-                print("Unable to register with hospital.")
-                return False
+        # Hospital returns a boolean.
+        if response.get(patient_msg.RESPONSE):
+            print("Obtained card from hospital.")
+            self.card = card_helper.get_card_object(self.card_path)
+            return True
+        else:
+            print("Unable to register with hospital.")
+            return False
 
     def seek_treatment(self, physician, hospital):
         """

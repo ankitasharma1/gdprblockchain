@@ -10,19 +10,20 @@ from constants import MESSAGE_SIZE
 from constants import TYPE
 import constants
 import patient_msg
-from cryptography.hazmat.primitives import serialization
+import phys_msg
 
 """
 Supported Commands
 """
 EXIT = 'exit'
+STAFF = 'staff'
 
 h = None
 parser = Parser()
 
 def main():
     """
-    Wrapper around the patient class.
+    Wrapper around the hospital class.
     """
     arguments = sys.argv
     if len(arguments) < 2:
@@ -74,7 +75,7 @@ def main():
         cv.release()
 
 def repl(s, cv):
-    print("Kicking off REPL")
+    print("Kicking off REPL\n\n")
     while True:
         commands = sys.stdin.readline().split()
         try:
@@ -87,8 +88,10 @@ def repl(s, cv):
                 cv.notify()
                 cv.release()
                 return
+            elif command == STAFF:
+                print(h.get_staff())
             else:
-                print("Supported Commands: [" + EXIT +"]")
+                print("Supported Commands: [" + EXIT + ", " + STAFF + "]")
         except Exception, e:
             print(e)
 
@@ -125,7 +128,8 @@ def handle_message(message):
     if type == patient_msg.REGISTER:
         patient_name = message.get(patient_msg.PATIENT_NAME)
         patient_id = message.get(patient_msg.PATIENT_ID)
-        print("-------> Register %s" %(patient_name))
+        print("-------> Register Patient %s" %(patient_name))
+        # API Call #
         card = h.register_patient(patient_name, patient_id)
         if card == None:
             # Unsuccessful registration.
@@ -146,6 +150,18 @@ def handle_message(message):
             f.write(str(card))
             f.close()
             return patient_msg.register_response_msg(True)
+    elif type == phys_msg.REGISTER:
+        print(message)
+        physician_name = message.get(phys_msg.PHYSICIAN_NAME)
+        physician_id = message.get(phys_msg.PHYSICIAN_ID)
+        print("-------> Register Physician %s" %(physician_name))
+        # API Call #
+        response = h.register_physician(physician_name, physician_id)
+        if response:
+            return phys_msg.register_response_msg(True)
+        else:
+            # Dup registration.
+            return phys_msg.register_response_msg(False)
     else:
         print("ERROR: unknown type %s" %(type))
 

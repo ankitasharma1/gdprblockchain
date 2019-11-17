@@ -23,6 +23,7 @@ class Hospital:
         self.bc_port = int(bc_port)
         self.db = dict()
         self.staff = []
+        self.staff_names = []
 
     """
     API Implementations.
@@ -60,14 +61,17 @@ class Hospital:
         s.close()
         return 0
 
-    def register_physician(self, uid):
+    def register_physician(self, name, uid):
         """
         Function that registers a physician.
         :param uid: Physician uid
         :return: boolean
         """
-        self.staff.append(uid)
-        return True
+        if uid not in self.staff:
+            self.staff_names.append(name)
+            self.staff.append(uid)
+            return True
+        return False
 
     def register_patient(self, patient_name, patient_id):
         """
@@ -84,7 +88,7 @@ class Hospital:
         if response == ERROR:
             return None
         if response:
-            print("ERROR: Patient " + patient_name + " is affiliated with another hospital")
+            print("ERROR: Patient " + patient_name + " is affiliated with a hospital already")
             return None
         # Generate keys.
         priv_key, pub_key = crypto.generate_keys()
@@ -232,7 +236,7 @@ class Hospital:
         Function to return hospital staff.
         :return: list of hospital staff members.
         """
-        return self.staff
+        return self.staff_names
 
     """
     Internal Helper Functions.
@@ -389,5 +393,5 @@ class Card:
         card_to_string = card_to_string + str(self.patient_id) + ","
         card_to_string = card_to_string + str(self.uid) + ","
         card_to_string = card_to_string + str(self.priv_key) + ","
-        card_to_string = card_to_string + str(self.hospital_name)
+        card_to_string = card_to_string + str(self.hospital_name) + "\n"
         return card_to_string

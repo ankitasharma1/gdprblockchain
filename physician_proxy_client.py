@@ -1,12 +1,13 @@
 import socket
 import sys
-from patient import Patient
+from constants import ADDRESS
+from constants import PORT
 from parser import Parser
 from threading import Thread
 from threading import Condition
-from constants import ADDRESS
-from constants import PORT
+from physician import Physician
 from constants import MESSAGE_SIZE
+from constants import TYPE
 import constants
 
 """
@@ -14,42 +15,35 @@ Supported Commands
 """
 EXIT = 'exit'
 REGISTER = 'reg'
-REMOVE = 'rm'
-TREATMENT = 'treatment'
-TRANSFER = 'transfer'
-PHYSICIANS = 'phys'
-HOSPITALS = 'hosp'
-CARD = 'card'
-REMOVE_CARD = 'rm'
+HOSPITALS = 'hospitals'
 
 """
 Supported Commands Params
 """
 NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
 
-p = None
+phys = None
 parser = Parser()
 
 def main():
     """
-    Wrapper around the patient class.
+    Wrapper around the physician class.
     """
     arguments = sys.argv
     if len(arguments) < 2:
-        print("ERROR: missing argument - %s" %(parser.get_patient_names_string()))
+        print("ERROR: missing argument - %s" %(parser.get_phys_names_string()))
         return
 
-    patient_name = arguments[1]
+    physician_name = arguments[1]
 
-    if not parser.valid_patient(patient_name):
-        print("ERROR: invalid argument - %s" %(parser.get_patient_names_string()))
+    if not parser.valid_phys(physician_name):
+        print("ERROR: invalid argument - %s" %(parser.get_phys_names_string()))
         return
 
-    # Construct patient using info. from parser.
-    global p
-    p = Patient(patient_name, parser.get_patient_id(patient_name))
-    p.set_card_path(parser.get_patient_card(patient_name))
-    contact_info = parser.get_patient_contact_info(patient_name)
+    # Construct physician using info. from parser.
+    global phys
+    phys = Physician(physician_name, parser.get_phys_id(physician_name))
+    contact_info = parser.get_phys_contact_info(physician_name)
     address = contact_info[ADDRESS]
     port = contact_info[PORT]
 
@@ -66,7 +60,7 @@ def main():
     print("Socket is listening")
 
     # Spawn repl thread.
-    print("Starting repl for %s." %(patient_name))
+    print("Starting repl for %s." %(physician_name))
     t = Thread(target=repl, args=(s, cv))
     t.daemon = True
     t.start()
@@ -98,23 +92,16 @@ def repl(s, cv):
                 cv.notify()
                 cv.release()
                 return
-            elif command == PHYSICIANS:
-                print(parser.get_phys_names_string())
-            elif command == HOSPITALS:
-                print(parser.get_hosp_names_string())
             elif command == REGISTER:
                 if len(commands) != NUM_REGISTER_PARAMS:
                     print( "Usage: reg [hospital name]")
                     continue
                 hospital_name = commands[1]
                 register(hospital_name)
-            elif command == CARD:
-                print(str(p.card))
-            elif command == REMOVE_CARD:
-                print("Removing card...\n")
-                p.card = None
+            elif command == HOSPITALS:
+                print(phys.get_hospitals())            
             else:
-                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER +"]")
+                print("Supported Commands: [" + EXIT + ", " + HOSPITALS + ", " + REGISTER + "]")
         except Exception, e:
             print(e)
 
@@ -124,7 +111,7 @@ def register(hosp_name):
         return
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
-    p.register(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
+    phys.register(hosp_name, hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
     return
 
 def handle_connection(s):
@@ -154,9 +141,4 @@ def listen_on_socket(c):
             print(e)
             return clean_up(c)
 
-def clean_up(c):
-    print("Closing connection")
-    c.close()
-
 main()
-    

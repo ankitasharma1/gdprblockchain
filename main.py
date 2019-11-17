@@ -65,6 +65,7 @@ def connect(hospitals, physicians, patients):
     pa2 = patients[1]
     pa3 = patients[2]
 
+    """
     print("------REGISTRATION")
     pa1.register(h1)
     # Give some time for the blockchain to update.
@@ -72,9 +73,8 @@ def connect(hospitals, physicians, patients):
     pa1.card = None
     print("\n\n------DUP REGISTRATION") 
     pa1.register(h2)
-
-
     """
+
     pa2.register(h2)
     ph1.register(h2)
     # Give some time for the blockchain to update.

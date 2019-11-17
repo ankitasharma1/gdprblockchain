@@ -53,7 +53,7 @@ def main():
         cv.release()
 
 def repl(s, cv):
-    print("Kicking off REPL")
+    print("Kicking off REPL\n\n")
     while True:
         commands = sys.stdin.readline().split()
         try:
