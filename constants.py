@@ -1,8 +1,11 @@
 import yaml
+import json
 
 ERROR = -1
 ADDRESS = 0
 PORT = 1
+
+TYPE = "type"
 
 MESSAGE_SIZE = 256
 

@@ -19,6 +19,7 @@ TREATMENT = 'treatment'
 TRANSFER = 'transfer'
 PHYSICIANS = 'phys'
 HOSPITALS = 'hosp'
+CARD = 'card'
 
 """
 Supported Commands Params
@@ -44,7 +45,9 @@ def main():
         return
 
     # Construct patient using info. from parser.
+    global p
     p = Patient(patient_name, parser.get_patient_id(patient_name))
+    p.set_card_path(parser.get_patient_card(patient_name))
     contact_info = parser.get_patient_contact_info(patient_name)
     address = contact_info[ADDRESS]
     port = contact_info[PORT]
@@ -104,8 +107,10 @@ def repl(s, cv):
                     continue
                 hospital_name = commands[1]
                 register(hospital_name)
+            elif command == CARD:
+                print(str(p.card))
             else:
-                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + HOSPITALS + ", " + REGISTER +"]")
+                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + HOSPITALS + ", " + CARD + ", " + REGISTER +"]")
         except Exception, e:
             print(e)
 

@@ -2,6 +2,10 @@ import socket
 from threading import Thread
 import crypto
 import patient_msg
+import card_helper
+from constants import ERROR
+from constants import MESSAGE_SIZE
+import constants
 
 NAME = "name"
 PATIENT_ID = "patient_id"
@@ -19,13 +23,24 @@ class Patient:
         """
         self.name = name
         self.patient_id = patient_id
+        self.card_path = None
         self.card = None
+
+    def set_card_path(self, path):
+        self.card_path = path
 
     def send_msg(self, msg, address, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((address, port))
+            # Send a message.
             s.send(msg)
+            # Wait to receive response.
+            data = s.recv(MESSAGE_SIZE)
+            if data:
+                messages = constants.deserialize(data)
+                for message in messages:
+                    return message
         except Exception, e:
             print(e)
             print("ERROR: unable to send request %s" %(msg))
@@ -42,16 +57,19 @@ class Patient:
         :return: boolean
         """       
         if self.card == None:
-            self.send_msg(patient_msg.register_msg(self.name, self.patient_id), hospital_address, hospital_port)
-            # UPDATE #
-            return
-            #self.card = hospital.register_patient(self.name, self.patient_id)
-            if self.card:
-                print("Obtained card from hospital")
+            response = self.send_msg(patient_msg.register_msg(self.name, self.patient_id), hospital_address, hospital_port)
+            if response.get(constants.TYPE) != patient_msg.REGISTER_RESPONSE:
+                print("ERROR: incorrect response type from hospital, should have received %s" %(patient_msg.REGISTER_RESPONSE))
+                return
+
+            # Hospital returns a boolean.
+            if response.get(patient_msg.RESPONSE):
+                print("Obtained card from hospital.")
+                self.card = card_helper.get_card_object(self.card_path)
                 return True
             else:
-                print("Unable to register")
-                return False 
+                print("Unable to register with hospital.")
+                return False
 
     def seek_treatment(self, physician, hospital):
         """

@@ -7,7 +7,9 @@ from threading import Condition
 from constants import ADDRESS
 from constants import PORT
 from constants import MESSAGE_SIZE
+from constants import TYPE
 import constants
+import patient_msg
 
 """
 Supported Commands
@@ -33,6 +35,7 @@ def main():
         return
 
     # Construct patient using info. from parser.
+    global h
     h = Hospital(hospital_name, parser.get_bc_contact_info()[ADDRESS], parser.get_bc_contact_info()[PORT])
     contact_info = parser.get_hosp_contact_info(hospital_name)
     address = contact_info[ADDRESS]
@@ -108,12 +111,33 @@ def listen_on_socket(c):
             if data:
                 messages = constants.deserialize(data)
                 for message in messages:
-                    print(message)
+                    response = handle_message(message)
+                    c.send(response)
             else:
                 return clean_up(c)
         except Exception, e:
             print(e)
             return clean_up(c)
+
+def handle_message(message):
+    type = message.get(TYPE)
+    if type == patient_msg.REGISTER:
+        patient_name = message.get(patient_msg.PATIENT_NAME)
+        patient_id = message.get(patient_msg.PATIENT_ID)
+        print("-------> Register %s" %(patient_name))
+        card = h.register_patient(patient_name, patient_id)
+        if card == None:
+            # Unsuccessful registration.
+            return patient_msg.register_response_msg(False)
+        else:
+            # Successful registration.
+            card_path = parser.get_patient_card(patient_name)
+            f = open(card_path, "w+")
+            f.write(str(card))
+            f.close()
+            return patient_msg.register_response_msg(True)
+    else:
+        print("ERROR: unknown type %s" %(type))
 
 def clean_up(c):
     print("Closing connection")

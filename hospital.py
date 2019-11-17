@@ -377,9 +377,17 @@ class Card:
 
     def update(self, hospital_name):
         """
-        Construct a new Card object.
+        Update param of card.
         :param hospital_name: Hospital name
         :return: nothing
         """
         self.hospital_name = hospital_name
 
+    def __str__(self):
+        card_to_string = ""
+        card_to_string = card_to_string + str(self.patient_name) + ","
+        card_to_string = card_to_string + str(self.patient_id) + ","
+        card_to_string = card_to_string + str(self.uid) + ","
+        card_to_string = card_to_string + "JUNK" + ","
+        card_to_string = card_to_string + str(self.hospital_name)
+        return card_to_string

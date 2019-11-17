@@ -8,6 +8,7 @@ class Parser():
         self.physicians_ids = dict()
         self.patients = dict()
         self.patients_ids = dict()
+        self.patients_cards = dict()
         self.bc_address = None
         self.bc_port = None
         self.parse()
@@ -46,8 +47,10 @@ class Parser():
             port = int(patients[patient]['port'])
             name = patients[patient]['name']
             patient_id = patients[patient]['patient_id']
+            card = patients[patient]['card']
             self.patients.update({name: (address, port)})
             self.patients_ids.update({name: patient_id})
+            self.patients_cards.update({name: card})
 
     # BC Proxy Server.
     def get_bc_contact_info(self):
@@ -124,4 +127,9 @@ class Parser():
     def get_patient_contact_info(self, patient):
         if patient in self.patients:
             return self.patients.get(patient)
+        return None
+
+    def get_patient_card(self, patient):
+        if patient in self.patients_cards:
+            return self.patients_cards.get(patient)
         return None

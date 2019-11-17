@@ -36,13 +36,16 @@ patients:
     patient_id: 'DDDDDD'
     address: 'localhost'
     port: 7000
+    card: 'cards/sally.txt'
   patient_2:
     name: 'eric'
     patient_id: 'EEEEEE'
     address: 'localhost'
     port: 8000
+    card: 'cards/eric.txt'
   patient_3:
     name: 'joe'
     patient_id: 'FFFFFF'
     address: 'localhost'
     port: 9000
+    card: 'cards/joe.txt'
