@@ -37,15 +37,18 @@ patients:
     address: 'localhost'
     port: 7000
     card: 'cards/sally.txt'
+    priv_key: 'priv/sally.pem'
   patient_2:
     name: 'eric'
     patient_id: 'EEEEEE'
     address: 'localhost'
     port: 8000
     card: 'cards/eric.txt'
+    priv_key: 'priv/eric.pem'
   patient_3:
     name: 'joe'
     patient_id: 'FFFFFF'
     address: 'localhost'
     port: 9000
     card: 'cards/joe.txt'
+    priv_key: 'priv/joe.pem'

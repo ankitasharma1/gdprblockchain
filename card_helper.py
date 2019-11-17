@@ -1,5 +1,6 @@
 from hospital import Card
 
+
 PATIENT_NAME = 0
 PATIENT_ID = 1
 UID = 2

@@ -10,6 +10,7 @@ from constants import MESSAGE_SIZE
 from constants import TYPE
 import constants
 import patient_msg
+from cryptography.hazmat.primitives import serialization
 
 """
 Supported Commands
@@ -132,6 +133,15 @@ def handle_message(message):
         else:
             # Successful registration.
             card_path = parser.get_patient_card(patient_name)
+            priv_key_path = parser.get_patient_priv_key_path(patient_name)
+            # Store the private key.
+            pem = card.priv_key.exportKey(format='PEM', passphrase=None, pkcs=1)
+            with open(priv_key_path, 'wb') as f:
+                f.write(pem)
+                f.close()
+            # Update card to store the location of where the private key is stored.
+            card.priv_key = priv_key_path
+            # Store contents of card in file.          
             f = open(card_path, "w+")
             f.write(str(card))
             f.close()
