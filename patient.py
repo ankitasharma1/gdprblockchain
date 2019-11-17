@@ -43,7 +43,7 @@ class Patient:
                     return message
         except Exception, e:
             print(e)
-            print("ERROR: unable to send request %s" %(msg))
+            #print("ERROR: unable to send request %s" %(msg))
             s.close()
             return ERROR
             
@@ -61,6 +61,8 @@ class Patient:
         if isinstance(response , int):
             print("ERROR: Hospital server error")
             return
+
+        # Check if appropriate response is received.
         if response.get(constants.TYPE) != patient_msg.REGISTER_RESPONSE:
             print("ERROR: incorrect response type from hospital, should have received %s" %(patient_msg.REGISTER_RESPONSE))
             return
@@ -74,16 +76,30 @@ class Patient:
             print("Unable to register with hospital.")
             return False
 
-    def seek_treatment(self, physician, hospital):
+    def seek_treatment(self, physician_address, physician_port):
         """
         Function for a patient to seek treatment from a physician.
-        :param physician: Physician
-        :param hospital: Hospital TODO: This will not be needed later.
+        :param physician_address: Physician address
+        :param physician_port: Physician port
         :return: nothing
-        """       
-        if (physician.seek_treatment(self.card, hospital)):
+        """
+        if self.card == None:
+            print("ERROR: Must register with a hospital first")
+            return False
+        
+        response = self.send_msg(patient_msg.seek_treatment_msg(self.card_path), physician_address, physician_port)
+        if isinstance(response , int):
+            print("ERROR: Physician client error")
+            return
+ 
+       # Physician returns a boolean.
+        if response.get(patient_msg.RESPONSE):
+            print("Treatment done.")
             return True
-        return False
+        else:
+            print("Unable to seek treatment.")
+            return False
+ 
 
     def read(self, hospital):
         """

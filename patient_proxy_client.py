@@ -25,7 +25,8 @@ REMOVE_CARD = 'rm'
 """
 Supported Commands Params
 """
-NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
+NUM_REGISTER_PARAMS = 2 # 'reg [hospital_name]'
+NUM_TREATMENT_PARAMS = 2 # 'treatment [physician_name]' 
 
 p = None
 parser = Parser()
@@ -104,12 +105,18 @@ def repl(s, cv):
                 print(parser.get_hosp_names_string())
             elif command == REGISTER:
                 if len(commands) != NUM_REGISTER_PARAMS:
-                    print( "Usage: reg [hospital name]")
+                    print("Usage: %s [hospital_name]" %(REGISTER))
                     continue
                 hospital_name = commands[1]
                 register(hospital_name)
             elif command == CARD:
-                print(str(p.card))
+                print(str(p.card) + "\n")
+            elif command == TREATMENT:
+                if len(commands) != NUM_TREATMENT_PARAMS:
+                    print("Usage: %s [physician_name]" %(TREATMENT))
+                    continue
+                physician_name = commands[1]
+                treatment(physician_name)                
             elif command == REMOVE_CARD:
                 print("Removing card...\n")
                 p.card = None
@@ -117,6 +124,15 @@ def repl(s, cv):
                 print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER +"]")
         except Exception, e:
             print(e)
+
+def treatment(phys_name):
+    if not parser.valid_phys(phys_name):
+        print("ERROR: invalid physician name - %s" %(parser.get_phys_names_string()))
+        return
+
+    phys_contact_info = parser.get_phys_contact_info(phys_name)
+    p.seek_treatment(phys_contact_info[ADDRESS], phys_contact_info[PORT])
+    return
 
 def register(hosp_name):
     if not parser.valid_hosp(hosp_name):

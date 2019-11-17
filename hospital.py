@@ -54,7 +54,7 @@ class Hospital:
                         return message.get(bc_msg.RESPONSE)
         except Exception, e:
             print(e)
-            print("ERROR: unable to send request %s to blockchain server" %(msg))
+            #print("ERROR: unable to send request %s to blockchain server" %(msg))
             s.close()
             return ERROR
             
@@ -393,5 +393,5 @@ class Card:
         card_to_string = card_to_string + str(self.patient_id) + ","
         card_to_string = card_to_string + str(self.uid) + ","
         card_to_string = card_to_string + str(self.priv_key) + ","
-        card_to_string = card_to_string + str(self.hospital_name) + "\n"
+        card_to_string = card_to_string + str(self.hospital_name)
         return card_to_string

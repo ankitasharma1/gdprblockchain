@@ -151,7 +151,6 @@ def handle_message(message):
             f.close()
             return patient_msg.register_response_msg(True)
     elif type == phys_msg.REGISTER:
-        print(message)
         physician_name = message.get(phys_msg.PHYSICIAN_NAME)
         physician_id = message.get(phys_msg.PHYSICIAN_ID)
         print("-------> Register Physician %s" %(physician_name))
@@ -160,8 +159,11 @@ def handle_message(message):
         if response:
             return phys_msg.register_response_msg(True)
         else:
-            # Dup registration.
             return phys_msg.register_response_msg(False)
+    elif type == phys_msg.WRITE:
+        print("-------> Write Request")
+        print(message)
+        return phys_msg.write_response_msg(True)
     else:
         print("ERROR: unknown type %s" %(type))
 

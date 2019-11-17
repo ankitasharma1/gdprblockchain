@@ -9,6 +9,8 @@ from physician import Physician
 from constants import MESSAGE_SIZE
 from constants import TYPE
 import constants
+import patient_msg
+import card_helper
 
 """
 Supported Commands
@@ -134,11 +136,31 @@ def listen_on_socket(c):
             if data:
                 messages = constants.deserialize(data)
                 for message in messages:
-                    print(message)
+                    response = handle_message(message)
+                    c.send(response)
             else:
                 return clean_up(c)
         except Exception, e:
             print(e)
             return clean_up(c)
+
+def handle_message(message):
+    type = message.get(TYPE)
+    if type == patient_msg.SEEK_TREATMENT:
+        card_path = message.get(patient_msg.CARD_PATH)
+        card = card_helper.get_card_object(card_path)
+        print("-------> Request for treatment from %s" %(card.patient_name))
+        # API Call #
+        hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
+        if phys.seek_treatment(card_path, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
+            return patient_msg.seek_treatment_msg_response(True)
+        return patient_msg.seek_treatment_msg_response(False)   
+    else:
+        print("ERROR: unknown type %s" %(type))
+
+def clean_up(c):
+    print("Closing connection")
+    c.close()
+
 
 main()

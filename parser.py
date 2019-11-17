@@ -35,8 +35,8 @@ class Parser():
 
         # Physicians.               
         for physician in physicians:
-            address = hospitals[hospital]['address']
-            port = int(hospitals[hospital]['port'])
+            address = physicians[physician]['address']
+            port = int(physicians[physician]['port'])
             name = physicians[physician]['name']
             phys_id = physicians[physician]['physician_id']
             self.physicians.update({name: (address, port)})
@@ -78,6 +78,9 @@ class Parser():
     def get_hosp_contact_info(self, hospital):
         if hospital in self.hospitals:
             return self.hospitals.get(hospital)
+        print("NOT FOUND")
+        print(hospital)
+        print(self.hospitals)
         return None
 
     # Physicians.               

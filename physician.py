@@ -6,6 +6,8 @@ import socket
 from constants import ERROR
 from constants import MESSAGE_SIZE
 import constants
+import card_helper
+import patient_msg
 
 class Physician():
     """
@@ -23,7 +25,6 @@ class Physician():
 
     def send_msg(self, msg, address, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(msg)
         try:
             s.connect((address, port))
             # Send a message.
@@ -36,7 +37,7 @@ class Physician():
                     return message
         except Exception, e:
             print(e)
-            print("ERROR: unable to send request %s" %(msg))
+            #print("ERROR: unable to send request %s" %(msg))
             s.close()
             return ERROR
             
@@ -67,16 +68,24 @@ class Physician():
             print("Unable to register with hospital.")
             return False
 
-    def seek_treatment(self, card, hospital):
+    def seek_treatment(self, card_path, hospital_address, hospital_port):
         """
         Function to handle patient request and to write to hospital db k,v store.
         :param card: Patient card
-        :param hospital: Hospital TODO: This will not be needed later.
+        :param hospital_address: Hospital address
+        :param hospital_port: Hospital port
         :return: boolean
         """
+        card = card_helper.get_card_object(card_path)
         medical_record = MedicalRecord(self.name, card)
         medical_record.notes = "Patient looks good to me."
-        if hospital.write(card, medical_record, self.physician_id) :
+        response = self.send_msg(phys_msg.write_msg(card_path, str(medical_record), self.physician_id), hospital_address, hospital_port)
+        if response.get(constants.TYPE) != phys_msg.WRITE_RESPONSE:
+            print("ERROR: incorrect response type from hospital, should have received %s" %(phys_msg.WRITE_RESPONSE))
+            return
+
+        # Hospital returns a boolean.
+        if response.get(phys_msg.RESPONSE) :
             print("Successfully wrote to hospital db")
             return True
         else:
