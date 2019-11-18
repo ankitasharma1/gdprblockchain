@@ -124,7 +124,6 @@ class Physician():
             return False
                 
         if not self.hospital_affiliation_valid(card.hospital_name):
-            print("ERROR: " + self.name + " is not registered with hospital")
             return False      
 
         # Copied patient code.
@@ -178,7 +177,7 @@ class Physician():
         """
         if hospital_name in self.hospitals:
             return True
-        print("ERROR: " + self.name + " is not affiliated with " + hospital.name)
+        print("ERROR: " + self.name + " is not affiliated with " + hospital_name)
         return False
 
     def get_hospitals(self):

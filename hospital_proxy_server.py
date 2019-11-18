@@ -209,15 +209,20 @@ def handle_message(message):
         card = card_helper.get_card_object(card_path)
         dest_hosp_contact_info = parser.get_hosp_contact_info(dest_hosp_name)
         print("-------> Transfer Request from %s" %(card.patient_name))
-        response = h.transfer(card, card_path, dest_hosp_contact_info[ADDRESS], dest_hosp_contact_info[PORT])
+        response = h.transfer(card, card_path, dest_hosp_name, dest_hosp_contact_info[ADDRESS], dest_hosp_contact_info[PORT])
         if response:
             return patient_msg.transfer_response_msg(True)
         else:
             return patient_msg.transfer_response_msg(False)
     elif type == hospital_msg.TRANSFER_WRITE:
-        print(message)
+        db_key = message.get(hospital_msg.DB_KEY)
+        block = message.get(hospital_msg.BLOCK)
         print("---------> Transfer Write")
-        return hospital_msg.transfer_write_response_msg(True)
+        response = h.transfer_write(db_key, block)
+        if response:
+            return hospital_msg.transfer_write_response_msg(True)
+        else:
+            return hospital_msg.transfer_write_response_msg(False)
     else:
         print("ERROR: unknown type %s" %(type))
 

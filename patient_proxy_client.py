@@ -164,6 +164,9 @@ def transfer(src_hospital_name, dest_hospital_name):
     if not parser.valid_hosp(dest_hospital_name):
         print("ERROR: invalid dest_hospital_name - %s" %(parser.get_hosp_names_string()))
         return
+    if src_hospital_name == dest_hospital_name:
+        print("ERROR: unsupported transfer request")
+        return
 
     src_hosp_contact_info = parser.get_hosp_contact_info(src_hospital_name)
     p.transfer(src_hosp_contact_info[ADDRESS], src_hosp_contact_info[PORT], dest_hospital_name)

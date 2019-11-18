@@ -6,8 +6,7 @@ ADDRESS = 0
 PORT = 1
 
 TYPE = "type"
-
-MESSAGE_SIZE = 256
+MESSAGE_SIZE = 1024
 
 # Misc.
 NOP = "x"
@@ -21,7 +20,7 @@ def serialize(message):
     i = 0
     padding = NOP
     if (len(json.dumps(message)) > MESSAGE_SIZE):
-        print("ERROR: unable to serialize message")
+        print("ERROR: unable to serialize message %d" %(len(json.dumps(message))))
         return message
     while i < MESSAGE_SIZE:
         message.update({PADDING: padding * i})

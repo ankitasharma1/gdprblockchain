@@ -212,11 +212,12 @@ class Hospital:
             print("ERROR: Private key does not correspond to public key")
             return False                 
 
-    def transfer(self, card, card_path, dst_hospital_address, dst_hospital_port):
+    def transfer(self, card, card_path, dst_hospital_name, dst_hospital_address, dst_hospital_port):
         """
         Function to transfer patient data to another hospital.
         :param card: card
         :param card_path: card path
+        :param dst_hospital_name: name of hospital where records are being transferred to
         :param dst_hospital_address: hospital address to transfer data to
         :param dst_hospital_port: hospital port
         :return: boolean
@@ -236,39 +237,47 @@ class Hospital:
         # Confirm that data belongs to the card holder.
         if self.data_belongs_to_user(hosp_db_key, card):
             # Check if other hospital is able to transfer the records
-            blocks = self.db.get(hosp_db_key)
-            for block in blocks:
-                response = self.send_msg(hospital_msg.transfer_write_msg(hosp_db_key, block, len(blocks)), dst_hospital_address, dst_hospital_port)         
-                #if dst_hospital.transfer_write(hosp_db_key, self.db.get(hosp_db_key)):
-                if isinstance(response , int):
-                    print("Hospital server error")
-                    return False
-                if not response.get(hospital_msg.RESPONSE):                
-                    return False
+            if self.db.get(hosp_db_key):
+                blocks = self.db.get(hosp_db_key).split(",")
+                for block in blocks:
+                    response = self.send_msg(hospital_msg.transfer_write_msg(hosp_db_key, block), dst_hospital_address, dst_hospital_port)         
+                    #if dst_hospital.transfer_write(hosp_db_key, self.db.get(hosp_db_key)):
+                    if isinstance(response , int):
+                        print("Hospital server error")
+                        return False
+                    if not response.get(hospital_msg.RESPONSE):                
+                        return False
             
-            # Remove data from this hospital.
-            self.db.pop(hosp_db_key)
+                # Remove data from this hospital.
+                self.db.pop(hosp_db_key)
+            # Even if there may be no data to transfer, update the card.
             # Update hospital name on patient card.
-            card.update(dst_hospital.name)
+            card.update(dst_hospital_name)
+            # Update card to store the location of where the private key is stored.
+            card.priv_key = card.priv_key_path
             f = open(card_path, "w+")
             f.write(str(card))
             f.close()
             print("Successfully transferred records to %s" %(card.hospital_name))
+            return True
         else:
             print("ERROR: No data found for patient")
-            return None
+            return False
 
-    def transfer_write(self, hosp_db_key, blocks):
+    def transfer_write(self, hosp_db_key, block):
         """
         Function to transfer encrypted medical records to our db.
         :param hosp_db_key: hospital db key
         :param blocks: encrypted medical records
         :return: boolean
         """
-        if hosp_db_key in self.db:
-            print("ERROR: Key collision")
-            return False
-        self.db.update({hosp_db_key: blocks})
+
+        if hosp_db_key in self.db.keys():
+            value = self.db.get(hosp_db_key) + "," + block
+            self.db.update({hosp_db_key: value})         
+        else:
+            self.db.update({hosp_db_key: block})
+
         return True
 
     def get_staff(self):
@@ -425,6 +434,7 @@ class Card:
         self.uid = uid
         self.priv_key = priv_key
         self.hospital_name = hospital_name
+        self.priv_key_path = None
 
     def update(self, hospital_name):
         """

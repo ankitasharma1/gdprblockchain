@@ -11,11 +11,10 @@ TRANSFER_WRITE_RESPONSE = "transfer_write_response"
 # Params
 RESPONSE = "response"
 BLOCK = "blk"
-NUM_BLOCKS = "num_blk"
 DB_KEY = "db_key"
 
-def transfer_write_msg(db_key, block, num_blk):
-    message = {TYPE: TRANSFER_WRITE, DB_KEY: db_key, BLOCK: block, NUM_BLOCKS: num_blk}
+def transfer_write_msg(db_key, block):
+    message = {TYPE: TRANSFER_WRITE, DB_KEY: db_key, BLOCK: block}
     return json.dumps(constants.serialize(message))
 
 def transfer_write_response_msg(bool):

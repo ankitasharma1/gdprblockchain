@@ -20,5 +20,7 @@ def get_card_object(path):
             if len(contents) != CARD_PARAMS:
                 print("ERROR: incorrect card content in file")
                 return None
-            return Card(contents[PATIENT_NAME], contents[PATIENT_ID], contents[UID], crypto.retrieve_private_key(contents[PRIV_KEY]), contents[HOSP_NAME])
+            c = Card(contents[PATIENT_NAME], contents[PATIENT_ID], contents[UID], crypto.retrieve_private_key(contents[PRIV_KEY]), contents[HOSP_NAME])
+            c.priv_key_path = contents[PRIV_KEY]
+            return c
 

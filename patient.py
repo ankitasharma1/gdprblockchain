@@ -216,8 +216,8 @@ class Patient:
  
             # Hospital returns a boolean.
             if response.get(patient_msg.RESPONSE):
-                print("Records have been transferred and card has been updated")
                 self.card = card_helper.get_card_object(self.card_path)
+                print("Records have been transferred and card has been updated")
                 return True
             else:
                 print("Unsuccessful transfer")
