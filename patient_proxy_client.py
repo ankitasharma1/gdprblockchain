@@ -16,13 +16,13 @@ EXIT = 'exit'
 REGISTER = 'reg'
 READ = 'rd'
 PHYS_READ = 'phys_rd'
-REMOVE = 'rm'
+REMOVE = 'rm_records'
 TREATMENT = 'treatment'
 TRANSFER = 'transfer'
 PHYSICIANS = 'phys'
 HOSPITALS = 'hosp'
 CARD = 'card'
-REMOVE_CARD = 'rm'
+REMOVE_CARD = 'rm_card'
 
 """
 Supported Commands Params
@@ -31,6 +31,7 @@ NUM_REGISTER_PARAMS = 2 # 'reg [hospital_name]'
 NUM_TREATMENT_PARAMS = 2 # 'treatment [physician_name]' 
 NUM_READ_PARAMS = 2 # 'rd [hospital_name]'
 NUM_PHYS_READ_PARAMS = 2 # 'phys_rd [physician_name]'
+NUM_RM_PARAMS = 2 # 'rm [hospital_name]'
 
 p = None
 parser = Parser()
@@ -136,10 +137,27 @@ def repl(s, cv):
             elif command == REMOVE_CARD:
                 print("Removing card...\n")
                 p.card = None
+            elif command == REMOVE:
+                if len(commands) != NUM_RM_PARAMS:
+                    print("Usage: %s [hospital_name]" %(REMOVE))
+                    continue
+                hospital_name = commands[1]
+                print("Requesting to remove all records...\n")
+                remove(hospital_name)
             else:
-                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + READ + ", " + PHYS_READ + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER +"]")
+                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + REMOVE + ", " + READ + ", " + PHYS_READ + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER +"]")
         except Exception, e:
             print(e)
+
+def remove(hosp_name):
+    if not parser.valid_hosp(hosp_name):
+        print("ERROR: invalid hospital - %s" %(parser.get_hosp_names_string()))
+        return
+
+    hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
+    p.remove(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
+    return
+
 
 def phys_read(phys_name):
     if not parser.valid_phys(phys_name):

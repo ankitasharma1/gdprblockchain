@@ -73,8 +73,7 @@ def connect(hospitals, physicians, patients):
     pa1.card = None
     print("\n\n------DUP REGISTRATION") 
     pa1.register(h2)
-    """
-
+ 
     pa2.register(h2)
     ph1.register(h2)
     # Give some time for the blockchain to update.
@@ -89,7 +88,6 @@ def connect(hospitals, physicians, patients):
     print("\n\n---------> Test that physician can read patient's records")
     # Test that physician can read medical records for patient.
     pa2.read_medical_record(ph1, h2)
-    """
     """
     
     print("\n\n---------> Remove patient data")

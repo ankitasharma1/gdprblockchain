@@ -13,6 +13,8 @@ READ = "read"
 PHYS_READ = "phys_read"
 READ_RESPONSE = "read_response"
 PHYS_READ_RESPONSE = "phys_read_response"
+REMOVE = "remove"
+REMOVE_RESPONSE = "remove_response"
 
 
 # Params
@@ -55,3 +57,13 @@ def phys_read_msg(card_path):
 def phys_read_response_msg(bool):
     message = {TYPE: PHYS_READ_RESPONSE, RESPONSE: bool}
     return json.dumps(constants.serialize(message))
+
+def remove_msg(card_path):
+    message = {TYPE: REMOVE, CARD_PATH: card_path}
+    return json.dumps(constants.serialize(message))
+
+def remove_response_msg(bool):
+    message = {TYPE: REMOVE_RESPONSE, RESPONSE: bool}
+    return json.dumps(constants.serialize(message))
+
+

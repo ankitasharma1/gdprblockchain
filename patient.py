@@ -177,15 +177,27 @@ class Patient:
             print("ERROR: Must register with a hospital first")
 
 
-    def remove(self, hospital):
+    def remove(self, hospital_address, hospital_port):
         """
         Function for a patient to remove all of their data.
-        :param hospital: Hospital
+        :param hospital_address: Hospital address
+        :param hospital_port: Hospital port
         :return: boolean
         """       
         if self.card:
-            if hospital.remove(self.card):
-                 return True
+            response = self.send_msg(patient_msg.remove_msg(self.card_path), hospital_address, hospital_port)
+            if isinstance(response , int):
+                print("ERROR: Hospital server error")
+                return
+ 
+            # Hospital returns a boolean.
+            if response.get(patient_msg.RESPONSE):
+                print("Records have been removed")
+                return True
+            else:
+                print("Unsuccessful removal")
+                return False     
+        print("ERROR: Must register with a hospital first")
         return False
 
     def transfer(self, src_hospital, dst_hospital):

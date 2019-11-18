@@ -191,6 +191,16 @@ def handle_message(message):
         print("-------> Read Request")
         blocks = h.read(card_uid)
         return blocks
+    elif type == patient_msg.REMOVE:
+        card_path = message.get(patient_msg.CARD_PATH)
+        # Convert params into objects.
+        card = card_helper.get_card_object(card_path)
+        print("-------> Remove Request from %s" %(card.patient_name))
+        response = h.remove(card)
+        if response:
+            return patient_msg.remove_response_msg(True)
+        else:
+            return patient_msg.remove_response_msg(False)            
     else:
         print("ERROR: unknown type %s" %(type))
 
