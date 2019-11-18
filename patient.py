@@ -125,7 +125,7 @@ class Patient:
         :return: nothing
         """       
         if self.card:
-            socket = self.send_msg_get_socket(patient_msg.read(self.card.uid), hospital_address, hospital_port)
+            socket = self.send_msg_get_socket(patient_msg.read_msg(self.card.uid), hospital_address, hospital_port)
             if isinstance(socket, int):
                 return
             data = socket.recv(MESSAGE_SIZE)
@@ -154,15 +154,27 @@ class Patient:
         else:
             print("ERROR: Must register with a hospital first")               
 
-    def read_medical_record(self, physician, hospital):
+    def phys_read(self, physician_address, physician_port):
         """
         Function for a patient to give a physician permission to read their data.
-        :param physician: Physician
-        :param hospital: Hospital
+        :param physician_address: Physician address
+        :param physician_port: Physician port
         :return: nothing
         """       
         if self.card:
-            physician.read_patient_record(self.card, hospital)
+            response = self.send_msg(patient_msg.phys_read_msg(self.card_path), physician_address, physician_port)
+            if isinstance(response , int):
+                print("ERROR: Physician client error")
+                return
+ 
+            # Physician returns a boolean.
+            if response.get(patient_msg.RESPONSE):
+                print("Successfully read.")
+                return True
+            else:
+                print("Unable to have records read.")
+        else:
+            print("ERROR: Must register with a hospital first")
 
 
     def remove(self, hospital):

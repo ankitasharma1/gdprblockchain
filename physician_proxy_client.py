@@ -155,6 +155,15 @@ def handle_message(message):
         if phys.seek_treatment(card_path, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
             return patient_msg.seek_treatment_msg_response(True)
         return patient_msg.seek_treatment_msg_response(False)   
+    elif type == patient_msg.PHYS_READ:
+        card_path = message.get(patient_msg.CARD_PATH)
+        card = card_helper.get_card_object(card_path)
+        print("-------> Request to read medical records for %s" %(card.patient_name))
+        # API Call #
+        hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
+        if phys.read_patient_record(card_path, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
+            return patient_msg.phys_read_response_msg(True)
+        return patient_msg.phys_read_response_msg(False)   
     else:
         print("ERROR: unknown type %s" %(type))
 

@@ -10,7 +10,9 @@ REGISTER_RESPONSE = "patient_register_response"
 SEEK_TREATMENT = "seek_treatment"
 SEEK_TREATMENT_RESPONSE = "seek_treatment_response"
 READ = "read"
+PHYS_READ = "phys_read"
 READ_RESPONSE = "read_response"
+PHYS_READ_RESPONSE = "phys_read_response"
 
 
 # Params
@@ -38,10 +40,18 @@ def seek_treatment_msg_response(bool):
     message = {TYPE: SEEK_TREATMENT_RESPONSE, RESPONSE: bool}
     return json.dumps(constants.serialize(message))
 
-def read(card_uid):
+def read_msg(card_uid):
     message = {TYPE: READ, CARD_UID: card_uid}
     return json.dumps(constants.serialize(message))
 
 def read_response_msg(block, num_blk, bool):
     message = {TYPE: READ_RESPONSE, BLOCK: block, NUM_BLOCKS: num_blk, RESPONSE: bool}
+    return json.dumps(constants.serialize(message))
+
+def phys_read_msg(card_path):
+    message = {TYPE: PHYS_READ, CARD_PATH: card_path}
+    return json.dumps(constants.serialize(message))
+
+def phys_read_response_msg(bool):
+    message = {TYPE: PHYS_READ_RESPONSE, RESPONSE: bool}
     return json.dumps(constants.serialize(message))

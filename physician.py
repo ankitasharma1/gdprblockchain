@@ -45,6 +45,21 @@ class Physician():
         s.close()
         return 0
 
+    def send_msg_get_socket(self, msg, address, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((address, port))
+            s.send(msg)
+            return s
+        except Exception, e:
+            print(e)
+            print("Unable to connect")
+            s.close()
+            return ERROR
+            
+        s.close()
+        return 0
+
     def register(self, hospital_name, hospital_address, hospital_port):
         """
         Register with a hospital.
@@ -72,7 +87,7 @@ class Physician():
     def seek_treatment(self, card_path, hospital_address, hospital_port):
         """
         Function to handle patient request and to write to hospital db k,v store.
-        :param card: Patient card
+        :param card_path: Patient card
         :param hospital_address: Hospital address
         :param hospital_port: Hospital port
         :return: boolean
@@ -96,21 +111,50 @@ class Physician():
             print("Write was not successful")  
             return False       
 
-    def read_patient_record(self, card, hospital):
+    def read_patient_record(self, card_path, hospital_address, hospital_port):
         """
         Function to handle patient issuing request for physician to read their medical data.
-        :param card: Patient card
-        :param hospital: Hospital TODO: This will not be needed later.
-        :return: nothing
+        :param card_path: Patient card
+        :param hospital_address: Hospital address
+        :param hospital_port: Hospital port
+        :return: boolean
         """
-        if not self.hospital_affiliation_valid(hospital):
+        card = card_helper.get_card_object(card_path)
+        if card == None:
+            return False
+                
+        if not self.hospital_affiliation_valid(card.hospital_name):
             print("ERROR: " + self.name + " is not registered with hospital")
-            return False            
-        records = hospital.read(card.uid)
-        if records:
-		    for record in records:
-		        record = crypto.decrypt(record, card.priv_key)
-		        print(record)               
+            return False      
+
+        # Copied patient code.
+        socket = self.send_msg_get_socket(patient_msg.read_msg(card.uid), hospital_address, hospital_port)
+        if isinstance(socket, int):
+            return
+        data = socket.recv(MESSAGE_SIZE)
+        if data:
+            responses = constants.deserialize(data)
+            for response in responses:
+                if isinstance(response , int):
+                    socket.close()
+                    return
+                if response.get(patient_msg.RESPONSE):
+                    print(crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key))                
+                    num_blocks = response.get(patient_msg.NUM_BLOCKS)
+                    # Special casing the first response before reading the rest.
+                    for i in range(1, num_blocks):
+                        data = socket.recv(MESSAGE_SIZE)
+                        if data:
+                            responses = constants.deserialize(data)
+                            for response in responses: 
+       		                    print(crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key))
+            
+                else:
+                    print("No records were retrieved.")
+                    socket.close()
+                    return False
+        socket.close()
+        return True
 
     def transfer_patient_record(self, card, src_hospital, dst_hospital):
         """
@@ -126,13 +170,13 @@ class Physician():
         if src_hospital.transfer(card, dst_hospital):
             return True        
 
-    def hospital_affiliation_valid(self, hospital):
+    def hospital_affiliation_valid(self, hospital_name):
         """
         Function to validate that physician is registered with the hospital.
-        :param: hospital: Hospital
+        :param: hospital_name: Hospital name
         :return: boolean
         """
-        if hospital.name in self.hospitals:
+        if hospital_name in self.hospitals:
             return True
         print("ERROR: " + self.name + " is not affiliated with " + hospital.name)
         return False

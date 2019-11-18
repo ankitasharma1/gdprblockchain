@@ -71,6 +71,7 @@ class Hospital:
             self.staff_names.append(name)
             self.staff.append(uid)
             return True
+        print("ERROR: physician with that UID has already registered.")
         return False
 
     def register_patient(self, patient_name, patient_id):
