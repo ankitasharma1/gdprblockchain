@@ -8,6 +8,13 @@ DATE = "date"
 NOTES = "notes"
 SIGNATURE = "signature"
 
+NAME_INDX = 0
+PATIENT_ID_INDX = 1
+HOSPITAL_INDX = 2
+DATE_INDX = 3
+NOTES_INDX = 4
+SIGNATURE_INDX = 5
+
 class MedicalRecord:
     """
     Standardized medical record format.
@@ -69,3 +76,14 @@ class MedicalRecord:
         signature = str(self.signature)
         result = NAME + ":" + name + "," + PATIENT_ID + ":" + patient_id + "," + HOSPITAL + ":" + hospital + "," + DATE + ":" + date + "," + NOTES + ":" + notes + "," + SIGNATURE + ":" + signature
         return result
+
+def get_medical_record(string):
+    components = string.split(",")
+    med_rec = MedicalRecord(components[SIGNATURE_INDX].split(":")[1])
+    med_rec.name = components[NAME_INDX].split(":")[1]
+    med_rec.patient_id = components[PATIENT_ID_INDX].split(":")[1]
+    med_rec.hospital = components[HOSPITAL_INDX].split(":")[1]
+    med_rec.date = components[DATE_INDX].replace("date:", "") # Edge case because of how time is represented.
+    med_rec.notes = components[NOTES_INDX].split(":")[1]
+    return med_rec 
+

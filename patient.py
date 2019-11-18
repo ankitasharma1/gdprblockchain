@@ -40,10 +40,26 @@ class Patient:
             if data:
                 messages = constants.deserialize(data)
                 for message in messages:
+                    s.close()
                     return message
         except Exception, e:
             print(e)
             #print("ERROR: unable to send request %s" %(msg))
+            s.close()
+            return ERROR
+            
+        s.close()
+        return 0
+
+    def send_msg_get_socket(self, msg, address, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((address, port))
+            s.send(msg)
+            return s
+        except Exception, e:
+            print(e)
+            print("Unable to connect")
             s.close()
             return ERROR
             
@@ -101,18 +117,42 @@ class Patient:
             return False
  
 
-    def read(self, hospital):
+    def read(self, hospital_address, hospital_port):
         """
         Function for a patient to read all of their data.
-        :param hospital: Hospital
+        :param hospital_address: Hospital address
+        :param hospital_port: Hospital port
         :return: nothing
         """       
         if self.card:
-            records = hospital.read(self.card.uid)
-            if records:
-		        for record in records:
-		            record = crypto.decrypt(record, self.card.priv_key)
-		            print(record)               
+            socket = self.send_msg_get_socket(patient_msg.read(self.card.uid), hospital_address, hospital_port)
+            if isinstance(socket, int):
+                return
+            data = socket.recv(MESSAGE_SIZE)
+            if data:
+                responses = constants.deserialize(data)
+                for response in responses:
+                    if isinstance(response , int):
+                        socket.close()
+                        return
+                    if response.get(patient_msg.RESPONSE):
+                        print(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))                
+                        num_blocks = response.get(patient_msg.NUM_BLOCKS)
+                        # Special casing the first response before reading the rest.
+                        for i in range(1, num_blocks):
+                            data = socket.recv(MESSAGE_SIZE)
+                            if data:
+                                responses = constants.deserialize(data)
+                                for response in responses: 
+       		                        print(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))
+            
+                    else:
+                        print("No records were retrieved.")
+                        break
+            socket.close()
+
+        else:
+            print("ERROR: Must register with a hospital first")               
 
     def read_medical_record(self, physician, hospital):
         """

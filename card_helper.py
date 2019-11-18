@@ -1,5 +1,5 @@
 from hospital import Card
-
+import crypto
 
 PATIENT_NAME = 0
 PATIENT_ID = 1
@@ -20,5 +20,5 @@ def get_card_object(path):
             if len(contents) != CARD_PARAMS:
                 print("ERROR: incorrect card content in file")
                 return None
-            return Card(contents[PATIENT_NAME], contents[PATIENT_ID], contents[UID], contents[PRIV_KEY], contents[HOSP_NAME])
+            return Card(contents[PATIENT_NAME], contents[PATIENT_ID], contents[UID], crypto.retrieve_private_key(contents[PRIV_KEY]), contents[HOSP_NAME])
 

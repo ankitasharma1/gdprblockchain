@@ -34,6 +34,7 @@ class Physician():
             if data:
                 messages = constants.deserialize(data)
                 for message in messages:
+                    s.close()
                     return message
         except Exception, e:
             print(e)
@@ -80,6 +81,9 @@ class Physician():
         medical_record = MedicalRecord(self.name, card)
         medical_record.notes = "Patient looks good to me."
         response = self.send_msg(phys_msg.write_msg(card_path, str(medical_record), self.physician_id), hospital_address, hospital_port)
+        if isinstance(response , int):
+            print("ERROR: Hospital server error")
+            return
         if response.get(constants.TYPE) != phys_msg.WRITE_RESPONSE:
             print("ERROR: incorrect response type from hospital, should have received %s" %(phys_msg.WRITE_RESPONSE))
             return

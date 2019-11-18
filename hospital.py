@@ -360,6 +360,13 @@ class Hospital:
             value = self.db.get(key) + "," + value
         self.db.update({key: value})         
 
+    def get_db(self):
+        """
+        Function to return hospital db.
+        :return: hospital db
+        """
+        return self.db
+
 class Card:
     """
     Card created by the hospital.

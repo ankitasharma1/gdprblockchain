@@ -37,4 +37,3 @@ def write_response_msg(bool):
     return json.dumps(constants.serialize(message))
 
 
-

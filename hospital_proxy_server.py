@@ -8,15 +8,19 @@ from constants import ADDRESS
 from constants import PORT
 from constants import MESSAGE_SIZE
 from constants import TYPE
+import medical_record
 import constants
 import patient_msg
 import phys_msg
+import crypto
+import card_helper
 
 """
 Supported Commands
 """
 EXIT = 'exit'
 STAFF = 'staff'
+DB = 'db'
 
 h = None
 parser = Parser()
@@ -90,8 +94,10 @@ def repl(s, cv):
                 return
             elif command == STAFF:
                 print(h.get_staff())
+            elif command == DB:
+                print(h.get_db())
             else:
-                print("Supported Commands: [" + EXIT + ", " + STAFF + "]")
+                print("Supported Commands: [" + EXIT + ", " + DB + ", " + STAFF + "]")
         except Exception, e:
             print(e)
 
@@ -116,7 +122,17 @@ def listen_on_socket(c):
                 messages = constants.deserialize(data)
                 for message in messages:
                     response = handle_message(message)
-                    c.send(response)
+                    # This is a special case since we may be sending multiple blocks of encrypted data.
+                    if message.get(TYPE) == patient_msg.READ:
+                        if response == None:
+                            # No data found for patient.
+                            c.send(patient_msg.read_response_msg("", 0, False))
+                        else:
+                            # Send all of the blocks.
+                            for r in response:
+                                c.send(patient_msg.read_response_msg(r, len(response), True))
+                    else:
+                        c.send(response)
             else:
                 return clean_up(c)
         except Exception, e:
@@ -139,10 +155,7 @@ def handle_message(message):
             card_path = parser.get_patient_card(patient_name)
             priv_key_path = parser.get_patient_priv_key_path(patient_name)
             # Store the private key.
-            pem = card.priv_key.exportKey(format='PEM', passphrase=None, pkcs=1)
-            with open(priv_key_path, 'wb') as f:
-                f.write(pem)
-                f.close()
+            crypto.store_private_key(priv_key_path, card.priv_key)
             # Update card to store the location of where the private key is stored.
             card.priv_key = priv_key_path
             # Store contents of card in file.          
@@ -161,9 +174,23 @@ def handle_message(message):
         else:
             return phys_msg.register_response_msg(False)
     elif type == phys_msg.WRITE:
+        physician_id = message.get(phys_msg.PHYSICIAN_ID)
+        med_rec_string = message.get(phys_msg.MEDICAL_RECORD)
+        card_path = message.get(phys_msg.CARD_PATH)
+        # Convert params into objects.
+        card = card_helper.get_card_object(card_path)
+        med_rec = medical_record.get_medical_record(med_rec_string)
         print("-------> Write Request")
-        print(message)
-        return phys_msg.write_response_msg(True)
+        response = h.write(card, med_rec, physician_id)
+        if response:
+            return phys_msg.write_response_msg(True)
+        else:
+            return phys_msg.write_response_msg(False)
+    elif type == patient_msg.READ:
+        card_uid = message.get(patient_msg.CARD_UID)
+        print("-------> Read Request")
+        blocks = h.read(card_uid)
+        return blocks
     else:
         print("ERROR: unknown type %s" %(type))
 
