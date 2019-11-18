@@ -1,1 +1,0 @@
-sally,DDDDDD,sallyDDDDDD,priv/sally.pem,hospital_2
