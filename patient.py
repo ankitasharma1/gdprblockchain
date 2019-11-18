@@ -200,16 +200,30 @@ class Patient:
         print("ERROR: Must register with a hospital first")
         return False
 
-    def transfer(self, src_hospital, dst_hospital):
+    def transfer(self, src_hospital_address, src_hospital_port, dst_hospital):
         """
         Function to transfer data to another hospital
-        :param src_hospital: Current hospital
+        :param src_hospital_address: Current hospital address
+        :param src_hospital_port: Current hospital port
         :param dst_hospital: New hospital
         :return: boolean
         """       
         if self.card:
-            if src_hospital.transfer(self.card, dst_hospital):
-                 return True
+            response = self.send_msg(patient_msg.transfer_msg(self.card_path, dst_hospital), src_hospital_address, src_hospital_port)
+            if isinstance(response , int):
+                print("ERROR: Hospital server error")
+                return
+ 
+            # Hospital returns a boolean.
+            if response.get(patient_msg.RESPONSE):
+                print("Records have been transferred and card has been updated")
+                self.card = card_helper.get_card_object(self.card_path)
+                return True
+            else:
+                print("Unsuccessful transfer")
+                return False     
+
+        print("ERROR: Must register with a hospital first")
         return False
 
     def transfer_medical_record(self, src_hospital, dst_hospital, physician):

@@ -15,7 +15,8 @@ READ_RESPONSE = "read_response"
 PHYS_READ_RESPONSE = "phys_read_response"
 REMOVE = "remove"
 REMOVE_RESPONSE = "remove_response"
-
+TRANSFER = "transfer"
+TRANSFER_RESPONSE = "transfer_response"
 
 # Params
 PATIENT_NAME = "patient_name"
@@ -25,6 +26,7 @@ CARD_PATH = "card_path"
 CARD_UID = "card_uid"
 BLOCK = "blk"
 NUM_BLOCKS = "num_blk"
+DEST_HOSPITAL = "dest_hospital"
 
 def register_msg(patient_name, patient_id):
     message = {TYPE: REGISTER, PATIENT_NAME: patient_name, PATIENT_ID: patient_id}
@@ -64,6 +66,14 @@ def remove_msg(card_path):
 
 def remove_response_msg(bool):
     message = {TYPE: REMOVE_RESPONSE, RESPONSE: bool}
+    return json.dumps(constants.serialize(message))
+
+def transfer_msg(card_path, dst_hospital):
+    message = {TYPE: TRANSFER, CARD_PATH: card_path, DEST_HOSPITAL: dst_hospital}
+    return json.dumps(constants.serialize(message))
+
+def transfer_response_msg(bool):
+    message = {TYPE: TRANSFER_RESPONSE, RESPONSE: bool}
     return json.dumps(constants.serialize(message))
 
 

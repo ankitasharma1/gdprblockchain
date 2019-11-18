@@ -6,6 +6,9 @@ import bc_msg
 from constants import ERROR
 from Crypto.PublicKey import RSA
 import time
+import hospital_msg
+from constants import MESSAGE_SIZE
+import constants
 
 class Hospital:
     """
@@ -55,6 +58,28 @@ class Hospital:
         except Exception, e:
             print(e)
             #print("ERROR: unable to send request %s to blockchain server" %(msg))
+            s.close()
+            return ERROR
+            
+        s.close()
+        return 0
+
+    def send_msg(self, msg, address, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect((address, port))
+            # Send a message.
+            s.send(msg)
+            # Wait to receive response.
+            data = s.recv(MESSAGE_SIZE)
+            if data:
+                messages = constants.deserialize(data)
+                for message in messages:
+                    s.close()
+                    return message
+        except Exception, e:
+            print(e)
+            #print("ERROR: unable to send request %s" %(msg))
             s.close()
             return ERROR
             
@@ -187,15 +212,19 @@ class Hospital:
             print("ERROR: Private key does not correspond to public key")
             return False                 
 
-    def transfer(self, card, dst_hospital):
+    def transfer(self, card, card_path, dst_hospital_address, dst_hospital_port):
         """
         Function to transfer patient data to another hospital.
         :param card: card
-        :param dst_hospital: hospital to transfer data to
+        :param card_path: card path
+        :param dst_hospital_address: hospital address to transfer data to
+        :param dst_hospital_port: hospital port
         :return: boolean
         """
+
         # Verify that card and hospital name match.
         if not self.valid_card(card):
+            print("ERROR: invalid card, unable to accomodate transfer request")
             return False
         # Obtain the hash index. 
         hash_uid = hash(card.uid)
@@ -206,15 +235,25 @@ class Hospital:
         hosp_db_key = crypto.encrypt(card.uid, pub_key)
         # Confirm that data belongs to the card holder.
         if self.data_belongs_to_user(hosp_db_key, card):
-            # Check if other hospital is able to transfer the records           
-            if dst_hospital.transfer_write(hosp_db_key, self.db.get(hosp_db_key)):
-                # Remove data from this hospital.
-                self.db.pop(hosp_db_key)
-                # Update hospital name on patient card.
-                card.update(dst_hospital.name)
-                return True
-            else:
-                return False
+            # Check if other hospital is able to transfer the records
+            blocks = self.db.get(hosp_db_key)
+            for block in blocks:
+                response = self.send_msg(hospital_msg.transfer_write_msg(hosp_db_key, block, len(blocks)), dst_hospital_address, dst_hospital_port)         
+                #if dst_hospital.transfer_write(hosp_db_key, self.db.get(hosp_db_key)):
+                if isinstance(response , int):
+                    print("Hospital server error")
+                    return False
+                if not response.get(hospital_msg.RESPONSE):                
+                    return False
+            
+            # Remove data from this hospital.
+            self.db.pop(hosp_db_key)
+            # Update hospital name on patient card.
+            card.update(dst_hospital.name)
+            f = open(card_path, "w+")
+            f.write(str(card))
+            f.close()
+            print("Successfully transferred records to %s" %(card.hospital_name))
         else:
             print("ERROR: No data found for patient")
             return None

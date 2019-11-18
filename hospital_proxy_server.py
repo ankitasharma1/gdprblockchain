@@ -12,6 +12,7 @@ import medical_record
 import constants
 import patient_msg
 import phys_msg
+import hospital_msg
 import crypto
 import card_helper
 
@@ -200,7 +201,23 @@ def handle_message(message):
         if response:
             return patient_msg.remove_response_msg(True)
         else:
-            return patient_msg.remove_response_msg(False)            
+            return patient_msg.remove_response_msg(False)
+    elif type == patient_msg.TRANSFER:            
+        card_path = message.get(patient_msg.CARD_PATH)
+        dest_hosp_name = message.get(patient_msg.DEST_HOSPITAL)
+        # Convert params into objects.
+        card = card_helper.get_card_object(card_path)
+        dest_hosp_contact_info = parser.get_hosp_contact_info(dest_hosp_name)
+        print("-------> Transfer Request from %s" %(card.patient_name))
+        response = h.transfer(card, card_path, dest_hosp_contact_info[ADDRESS], dest_hosp_contact_info[PORT])
+        if response:
+            return patient_msg.transfer_response_msg(True)
+        else:
+            return patient_msg.transfer_response_msg(False)
+    elif type == hospital_msg.TRANSFER_WRITE:
+        print(message)
+        print("---------> Transfer Write")
+        return hospital_msg.transfer_write_response_msg(True)
     else:
         print("ERROR: unknown type %s" %(type))
 

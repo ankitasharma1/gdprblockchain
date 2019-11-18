@@ -89,7 +89,7 @@ def connect(hospitals, physicians, patients):
     # Test that physician can read medical records for patient.
     pa2.read_medical_record(ph1, h2)
     """
-    
+    """   
     print("\n\n---------> Remove patient data")
     # Remove patient data.
     assert(pa2.remove(h2) == True)
@@ -97,7 +97,7 @@ def connect(hospitals, physicians, patients):
     # Try to read data.
     pa2.read(h2)
     """
-    """
+
     print("---------> \n\n Test patient request to transfer")
     pa3.register(h1)
     ph3.register(h1)
@@ -118,7 +118,7 @@ def connect(hospitals, physicians, patients):
     print("---------> \n\n Test that physician can request to transfer")
     assert(pa3.transfer_medical_record(h3, h2, ph3) == True) 
     pa3.read(h2) 
-    """
+
 """
 Helper function to simulate interactions.
 """

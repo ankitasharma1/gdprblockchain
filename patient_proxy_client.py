@@ -32,6 +32,7 @@ NUM_TREATMENT_PARAMS = 2 # 'treatment [physician_name]'
 NUM_READ_PARAMS = 2 # 'rd [hospital_name]'
 NUM_PHYS_READ_PARAMS = 2 # 'phys_rd [physician_name]'
 NUM_RM_PARAMS = 2 # 'rm [hospital_name]'
+NUM_TRANSFER_PARAMS = 3 # 'transfer [src_hospital_name] [dst_hospital_name]
 
 p = None
 parser = Parser()
@@ -144,10 +145,29 @@ def repl(s, cv):
                 hospital_name = commands[1]
                 print("Requesting to remove all records...\n")
                 remove(hospital_name)
+            elif command == TRANSFER:
+                if len(commands) != NUM_TRANSFER_PARAMS:
+                    print("Usage: %s [src_hospital_name] [dest_hospital_name]" %(TRANSFER))
+                    continue
+                src_hospital_name = commands[1]
+                dest_hospital_name = commands[2]
+                transfer(src_hospital_name, dest_hospital_name)            
             else:
                 print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + REMOVE + ", " + READ + ", " + PHYS_READ + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER +"]")
         except Exception, e:
             print(e)
+
+def transfer(src_hospital_name, dest_hospital_name):
+    if not parser.valid_hosp(src_hospital_name):
+        print("ERROR: invalid src_hospital_name - %s" %(parser.get_hosp_names_string()))
+        return
+    if not parser.valid_hosp(dest_hospital_name):
+        print("ERROR: invalid dest_hospital_name - %s" %(parser.get_hosp_names_string()))
+        return
+
+    src_hosp_contact_info = parser.get_hosp_contact_info(src_hospital_name)
+    p.transfer(src_hosp_contact_info[ADDRESS], src_hosp_contact_info[PORT], dest_hospital_name)
+    return
 
 def remove(hosp_name):
     if not parser.valid_hosp(hosp_name):
