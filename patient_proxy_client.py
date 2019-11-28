@@ -34,6 +34,7 @@ NUM_READ_PARAMS = 2 # 'rd [hospital_name]'
 NUM_PHYS_READ_PARAMS = 2 # 'phys_rd [physician_name]'
 NUM_RM_PARAMS = 2 # 'rm [hospital_name]'
 NUM_TRANSFER_PARAMS = 3 # 'transfer [src_hospital_name] [dst_hospital_name]
+NUM_PHYS_TRANSFER_PARAMS = 3 # 'phys_transfer' [src_hospital_name] [physician_name]
 
 p = None
 parser = Parser()
@@ -152,11 +153,30 @@ def repl(s, cv):
                     continue
                 src_hospital_name = commands[1]
                 dest_hospital_name = commands[2]
-                transfer(src_hospital_name, dest_hospital_name)            
+                transfer(src_hospital_name, dest_hospital_name) 
+            elif command == PHYS_TRANSFER:
+                if len(commands) != NUM_PHYS_TRANSFER_PARAMS:
+                    print("Usage: %s [src_hospital_name] [phys_name]" %(PHYS_TRANSFER))
+                    continue
+                src_hospital_name = commands[1]
+                phys_name = commands[2]
+                phys_transfer(src_hospital_name, phys_name)           
             else:
-                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + REMOVE + ", " + READ + ", " + PHYS_READ + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER +"]")
+                print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + REMOVE + ", " + READ + ", " + PHYS_READ + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER + ", " + TRANSFER + ", " + PHYS_TRANSFER + "]")
         except Exception, e:
             print(e)
+
+def phys_transfer(src_hospital_name, phys_name):
+    if not parser.valid_hosp(src_hospital_name):
+        print("ERROR: invalid src_hospital_name - %s" %(parser.get_hosp_names_string()))
+        return
+
+    if not parser.valid_phys(phys_name):
+        print("ERROR: invalid physician name - %s" %(parser.get_phys_names_string()))
+        return
+
+    phys_contact_info = parser.get_phys_contact_info(phys_name)
+    p.phys_transfer(src_hospital_name, phys_contact_info[ADDRESS], phys_contact_info[PORT])    
 
 def transfer(src_hospital_name, dest_hospital_name):
     if not parser.valid_hosp(src_hospital_name):

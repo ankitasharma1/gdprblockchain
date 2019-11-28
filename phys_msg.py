@@ -32,6 +32,10 @@ def write_msg(card_path, medical_record, physician_id):
     message = {TYPE: WRITE, CARD_PATH: card_path, MEDICAL_RECORD: medical_record, PHYS_ID: physician_id}
     return json.dumps(constants.serialize(message))
 
+def get_note_msg_length(card_path, medical_record, physician_id):
+    message = {TYPE: WRITE, CARD_PATH: card_path, MEDICAL_RECORD: medical_record, PHYS_ID: physician_id}
+    return MESSAGE_SIZE - len(json.dumps(message))
+
 def write_response_msg(bool):
     message = {TYPE: WRITE_RESPONSE, RESPONSE: bool}
     return json.dumps(constants.serialize(message))

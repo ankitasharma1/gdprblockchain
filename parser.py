@@ -2,6 +2,9 @@ from constants import CONFIG_FILE
 import yaml
 
 class Parser():
+    """
+    Parser creates a knowledge base for the program based on the configuration file. Its purpose is similar to DNS.
+    """
     def __init__(self):
         self.hospitals = dict()
         self.physicians = dict()

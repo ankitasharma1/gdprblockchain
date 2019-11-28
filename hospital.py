@@ -17,9 +17,9 @@ class Hospital:
     def __init__(self, name, bc_address, bc_port):
         """
         Construct a new Hospital object.
-        :param name: Hospital name
-        :param bc_address: Blockchain proxy server address
-        :param bc_port: Blockchain proxy server port
+        :param: name: Hospital name
+        :param: bc_address: Blockchain proxy server address
+        :param: bc_port: Blockchain proxy server port
         """
         self.name = name
         self.bc_address = bc_address
@@ -32,6 +32,12 @@ class Hospital:
     API Implementations.
     """
     def send_message_to_bc(self, msg, pub_key=None):
+        """
+        Helper function that sends a message to the blockchain server.
+        :param: msg: Message to send
+        :param: pub_key: Public key RSA object that may be sent with the message
+        :return: response to message
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((self.bc_address, self.bc_port))
@@ -65,6 +71,13 @@ class Hospital:
         return 0
 
     def send_msg(self, msg, address, port):
+        """
+        Helper function to send a message to the given address.
+        :param: msg: Message to send
+        :param: address: Address to send to
+        :param: port: Port client is listening on
+        :return: response to message
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((address, port))
@@ -89,6 +102,7 @@ class Hospital:
     def register_physician(self, name, uid):
         """
         Function that registers a physician.
+        :param: name: Physician name
         :param uid: Physician uid
         :return: boolean
         """
@@ -311,7 +325,6 @@ class Hospital:
         """
         if card:
             if card.hospital_name != self.name:
-                print("ERROR: invalid card")
                 return False
             return True
         print("ERROR: no card provided")

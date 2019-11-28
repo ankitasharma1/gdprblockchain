@@ -212,7 +212,7 @@ class Patient:
             response = self.send_msg(patient_msg.transfer_msg(self.card_path, dst_hospital), src_hospital_address, src_hospital_port)
             if isinstance(response , int):
                 print("ERROR: Hospital server error")
-                return
+                return False
  
             # Hospital returns a boolean.
             if response.get(patient_msg.RESPONSE):
@@ -225,6 +225,31 @@ class Patient:
 
         print("ERROR: Must register with a hospital first")
         return False
+
+    def phys_transfer(self, src_hospital, phys_address, phys_port):
+        """
+        Function for patient to give permission to physician to transfer medical records.
+        :param src_hospital: Current hospital
+        :param phys_address: Physician address
+        :param phys_port: Physician port
+        :return: boolean
+        """       
+        if self.card:
+            response = self.send_msg(patient_msg.phys_transfer_msg(self.card_path, src_hospital), phys_address, phys_port)
+            if isinstance(response, int):
+                print("ERROR: Hospital server error")
+                return False
+            # Physician will return a boolean.
+            if response.get(patient_msg.RESPONSE):
+                self.card = card_helper.get_card_object(self.card_path)
+                print("Records have been transferred and card has been updated")
+                return True
+            else:
+                print("Unsuccessful transfer")
+                return False     
+
+        print("ERROR: Must register with a hospital first")
+        return False    
 
     def transfer_medical_record(self, src_hospital, dst_hospital, physician):
         """

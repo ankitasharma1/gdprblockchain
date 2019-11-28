@@ -78,6 +78,12 @@ class MedicalRecord:
         return result
 
 def get_medical_record(string):
+    """
+    Helper function to convert string to medical record object.
+    :param: string: Medical record represented as a string.
+    :return: Medical record
+    """
+
     components = string.split(",")
     med_rec = MedicalRecord(components[SIGNATURE_INDX].split(":")[1])
     med_rec.name = components[NAME_INDX].split(":")[1]

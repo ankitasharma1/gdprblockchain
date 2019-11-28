@@ -84,17 +84,22 @@ class Physician():
             print("Unable to register with hospital.")
             return False
 
-    def seek_treatment(self, card_path, hospital_address, hospital_port):
+    def seek_treatment(self, card_path, notes, hospital_address, hospital_port):
         """
         Function to handle patient request and to write to hospital db k,v store.
         :param card_path: Patient card
+        :param notes: Physician notes
         :param hospital_address: Hospital address
         :param hospital_port: Hospital port
         :return: boolean
         """
         card = card_helper.get_card_object(card_path)
         medical_record = MedicalRecord(self.name, card)
-        medical_record.notes = "Patient looks good to me."
+        # Obtain max note length.
+        max_note_length = phys_msg.get_note_msg_length(card_path, str(medical_record), self.physician_id)
+        #print("max note length %d" %(max_note_length))
+        notes = (notes[:max_note_length] + '..') if len(notes) > max_note_length else notes
+        medical_record.notes = notes
         response = self.send_msg(phys_msg.write_msg(card_path, str(medical_record), self.physician_id), hospital_address, hospital_port)
         if isinstance(response , int):
             print("ERROR: Hospital server error")
@@ -155,19 +160,35 @@ class Physician():
         socket.close()
         return True
 
-    def transfer_patient_record(self, card, src_hospital, dst_hospital):
+    def transfer(self, card_path, src_hosp, src_hosp_address, src_hosp_port, dst_hosp):
         """
         Function to handle patient issuing request for physician to transfer their medical data.
-        :param card: Patient card
-        :param src_hospital: Where data is currently stored.
-        :param dst_hospital: Where data is requested to be transferred.
+        :param card_path: Patient card path.
+        :param src_hosp: Name of hospital where data is currently stored.
+        :param src_hosp_address: Address of hospital where data is currently stored.
+        :param src_hosp_address: Port of hospital where data is currently stored.
+        :param dst_hosp: Where data is requested to be transferred.
         :return: boolean
         """
-        if not self.hospital_affiliation_valid(src_hospital):
-            print("ERROR: " + self.name + " is not registered with hospital")
-            return False            
-        if src_hospital.transfer(card, dst_hospital):
-            return True        
+
+        if not self.hospital_affiliation_valid(src_hosp):
+            print("ERROR: %s is not registered with hospital %s" %(self.name, src_hosp))
+            return False  
+
+        # Copied patient code.
+        response = self.send_msg(patient_msg.transfer_msg(card_path, dst_hosp), src_hosp_address, src_hosp_port)
+        
+        if isinstance(response , int):
+            print("ERROR: Hospital server error")
+            return False
+ 
+        # Hospital returns a boolean.
+        if response.get(patient_msg.RESPONSE):
+            print("Records have been transferred.")
+            return True
+        else:
+            print("Unsuccessful transfer")
+            return False     
 
     def hospital_affiliation_valid(self, hospital_name):
         """
@@ -177,7 +198,6 @@ class Physician():
         """
         if hospital_name in self.hospitals:
             return True
-        print("ERROR: " + self.name + " is not affiliated with " + hospital_name)
         return False
 
     def get_hospitals(self):

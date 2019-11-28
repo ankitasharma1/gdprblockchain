@@ -52,6 +52,9 @@ def main():
     # Condition variable for clean termination.
     cv = Condition()
 
+    # Condition variable for other thread reading from stdin.
+    read_from_stdin = Condition()
+
     # Create socket object.
     s = socket.socket()
     s.bind(('', port))
@@ -152,7 +155,9 @@ def handle_message(message):
         print("-------> Request for treatment from %s" %(card.patient_name))
         # API Call #
         hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
-        if phys.seek_treatment(card_path, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
+        # TODO: Don't hardcode this.
+        notes = "Patient looks good to me."        
+        if phys.seek_treatment(card_path, notes, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
             return patient_msg.seek_treatment_msg_response(True)
         return patient_msg.seek_treatment_msg_response(False)   
     elif type == patient_msg.PHYS_READ:
@@ -164,6 +169,25 @@ def handle_message(message):
         if phys.read_patient_record(card_path, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
             return patient_msg.phys_read_response_msg(True)
         return patient_msg.phys_read_response_msg(False)   
+    elif type == patient_msg.PHYS_TRANSFER:
+        card_path = message.get(patient_msg.CARD_PATH)
+        card = card_helper.get_card_object(card_path)
+        src_hospital = message.get(patient_msg.SRC_HOSPITAL)
+        print("-------> Request to transfer medical records for %s" %(card.patient_name))
+        # TODO: Don't hardcode this.
+        dest_hospital = "hospital_3"  
+
+        # Validate params before making API call.
+        if not parser.valid_hosp(dest_hospital):
+            print("ERROR: invalid hospital - %s" %(parser.get_hosp_names_string()))
+            return patient_msg.phys_transfer_response_msg(False)   
+
+        src_hosp_contact_info = parser.get_hosp_contact_info(src_hospital)
+      
+        # API Call #
+        if phys.transfer(card_path, src_hospital, src_hosp_contact_info[ADDRESS], src_hosp_contact_info[PORT], dest_hospital):
+            return patient_msg.phys_transfer_response_msg(True)
+        return patient_msg.phys_transfer_response_msg(False)   
     else:
         print("ERROR: unknown type %s" %(type))
 
