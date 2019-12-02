@@ -61,7 +61,7 @@ class Hospital:
                     for message in messages:
                         s.close()
                         return message.get(bc_msg.RESPONSE)
-        except Exception, e:
+        except Exception as e:
             print(e)
             #print("ERROR: unable to send request %s to blockchain server" %(msg))
             s.close()
@@ -90,7 +90,7 @@ class Hospital:
                 for message in messages:
                     s.close()
                     return message
-        except Exception, e:
+        except Exception as e:
             print(e)
             #print("ERROR: unable to send request %s" %(msg))
             s.close()

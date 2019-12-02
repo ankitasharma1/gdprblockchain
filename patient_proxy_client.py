@@ -163,7 +163,7 @@ def repl(s, cv):
                 phys_transfer(src_hospital_name, phys_name)           
             else:
                 print("Supported Commands: [" + EXIT + ", " + PHYSICIANS + ", " + REMOVE + ", " + READ + ", " + PHYS_READ + ", " + HOSPITALS + ", " + CARD + ", " + REMOVE_CARD + ", " + REGISTER + ", " + TRANSFER + ", " + PHYS_TRANSFER + "]")
-        except Exception, e:
+        except Exception as e:
             print(e)
 
 def phys_transfer(src_hospital_name, phys_name):
@@ -248,7 +248,7 @@ def handle_connection(s):
             t = Thread(target=listen_on_socket, args=(c,))
             t.daemon = True
             t.start()
-        except Exception, e:
+        except Exception as e:
             #print(e)
             return
 
@@ -262,7 +262,7 @@ def listen_on_socket(c):
                     print(message)
             else:
                 return clean_up(c)
-        except Exception, e:
+        except Exception as e:
             print(e)
             return clean_up(c)
 

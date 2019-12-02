@@ -70,7 +70,7 @@ def repl(s, cv):
                 bc.print_blockchain()
             else:
                 print("Supported Commands: [" + EXIT + ", " + PRINT + "]")
-        except Exception, e:
+        except Exception as e:
             pass
 
 def handle_connection(s):
@@ -82,7 +82,7 @@ def handle_connection(s):
             t = Thread(target=listen_on_socket, args=(c,))
             t.daemon = True
             t.start()
-        except Exception, e:
+        except Exception as e:
             #print(e)
             return
 
@@ -108,7 +108,7 @@ def listen_on_socket(c):
                             c.send(response)
             else:
                 return clean_up(c)
-        except Exception, e:
+        except Exception as e:
             print(e)
             return clean_up(c)
 

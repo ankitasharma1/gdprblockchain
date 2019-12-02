@@ -42,7 +42,7 @@ class Patient:
                 for message in messages:
                     s.close()
                     return message
-        except Exception, e:
+        except Exception as e:
             print(e)
             #print("ERROR: unable to send request %s" %(msg))
             s.close()
@@ -57,7 +57,7 @@ class Patient:
             s.connect((address, port))
             s.send(msg)
             return s
-        except Exception, e:
+        except Exception as e:
             print(e)
             print("Unable to connect")
             s.close()
