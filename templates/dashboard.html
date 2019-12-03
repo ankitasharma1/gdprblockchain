@@ -1,0 +1,211 @@
+{% extends 'navbar.html' %}
+{% block container %}
+  <div class="container-fluid">
+    <div class="row">
+    {% if entity_type == 'hospital' %}
+      <div class="col-md-6 pl-4 pr-4">
+        <div class="h4">Name: <b>{{ name }}</b></div>
+        <div class="card w-100 mb-2">
+          <div class="card-body">
+            <div class="card-title h5">Database</div>
+            <div class="card-text" id="db-feed">Database stuff</div>
+          </div>
+        </div>
+        <div class="card w-100 mb-2">
+          <div class="card-body">
+            <div class="card-title h5">Staff</div>
+            <div class="card-text" id="staff-feed">Staff</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 pr-4 pl-4">
+        <div class="card w-100">
+          <div class="card-body">
+            <div class="card-title h5">Logs from Hospital Service</div>
+            <div class="card-text" id="staff-feed">Logs stuff</div>
+          </div>
+        </div>
+      </div>
+    {% elif entity_type == 'patient' %}
+      <div class="col-md-4 mr-auto pr-4 pl-4">
+        <div class="row">
+          <div class="h4">Name: <b>{{ name }}</b></div>
+        </div>
+        <div class="row">
+          <div class="h4" id="patient-id">Patient ID: <b>N/a</b></div>
+        </div>
+        <div class="row pb-2">
+          <div class="card w-100">
+            <div class="card-body">
+              <h4 class="card-title">Patient Card</h4>
+              <p class="card-text" id="patient-card"><b>N/a</b></p>
+            </div>
+          </div>
+        </div>
+        <div class="row pb-2">
+          <div class="card w-100">
+            <div class="card-body">
+              <h4 class="card-title">Register at a Hospital</h4>
+              <p class="card-text" id="hospital-listing">Hospital Names as Buttons</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <a class="btn btn-danger" href="#" role="button">Unregister</a>
+        </div>
+      </div>
+      <div class="col-md-8 m-auto pl-4">
+        <div class="d-flex flex-row pb-2 justify-content-between">
+          <div class="card w-100 mr-1">
+            <div class="card-body">
+              <div class="card-title">Read</div>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="read-hospital-list">Hospital Names as Buttons</p>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle mb-2 text-muted">Response:</div>
+              <div class="card-text" id="read-output">Output</div>
+            </div>
+          </div>
+          <div class="card w-100 ml-1 mr-1">
+            <div class="card-body">
+              <div class="card-title">Read Physician</div>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="read-physician-list">Physician Names as Buttons</p>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle mb-2 text-muted">Response:</div>
+              <div class="card-text" id="read-physician-output">Output</div>
+            </div>
+          </div>
+          <div class="card w-100 ml-1">
+            <div class="card-body">
+              <div class="card-title">Remove</div>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="remove-hospital-list">Hospital Names as Buttons</p>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle mb-2 text-muted">Response:</div>
+              <div class="card-text" id="remove-output">Output</div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex flex-row justify-content-between">
+          <div class="card w-100 mr-1">
+            <div class="card-body">
+              <div class="card-title">Treatment</div>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="treatment-list">Physician Names as Buttons</p>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle mb-2 text-muted">Response:</div>
+              <div class="card-text" id="treatment-output">Output</div>
+            </div>
+          </div>
+          <div class="card w-100 mr-1 ml-1">
+            <div class="card-body">
+              <div class="card-title">Transfer</div>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="transfer-hospital-list">TODO</p>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle mb-2 text-muted">Response:</div>
+              <div class="card-text" id="transfer-output">Output</div>
+            </div>
+          </div>
+          <div class="card w-100 ml-1">
+            <div class="card-body">
+              <div class="card-title">Physician Transfer</div>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="physician-transfer-list">TODO</p>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle mb-2 text-muted">Response:</div>
+              <div class="card-text" id="physician-transfer-output">Output</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% elif entity_type == 'physician' %}
+      <div class="col-md-6">
+        <div class="row">
+          <div class="h4 mr-2 ml-2">Name: <b>{{ name }}</b></div>
+        </div>
+        <div class="row">
+          <div class="h4 mr-2 ml-2" id="physician-id">Physician ID: <b>N/a</b></div>
+        </div>
+        <div class="row">
+          <div class="card w-100 mb-2 ml-2 mr-2">
+            <div class="card-body">
+              <h4 class="card-title">Register at a Hospital</h4>
+              <p class="card-text" id="hospital-listing">Hospital Names as Buttons</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="card w-100 mb-2 ml-2 mr-2">
+            <div class="card-body">
+              <h4 class="card-title">Affiliated Hospitals</h4>
+              <p class="card-text" id="affiliated-hospital-listing">Hospital Names</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="row">
+          <div class="card w-100 mb-2 ml-2 mr-2">
+            <div class="card-body">
+              <h4 class="card-title">Treatment</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="treatment-output">Treatment output</p>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="form-group">
+                  <input type="text" class="form-control" id="physician-treatment" placeholder="Treatment Info">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="card w-100 mb-2 ml-2 mr-2">
+            <div class="card-body">
+              <h4 class="card-title">Patient Info</h4>
+              <p class="card-text" id="patient-info">Patient Info</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="card w-100 mb-2 ml-2 mr-2">
+            <div class="card-body">
+              <h4 class="card-title">Physician Transfer</h4>
+            </div>
+            <div class="card-body">
+              <p class="card-text" id="physician-transfer-output">Physician transfer output</p>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="form-group">
+                  <input type="text" class="form-control" id="physician-transfer-hospital" placeholder="Hospital Name">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="h5">Error, entity type not recognized</div>
+    {% endif %}
+    </div>
+  </div>
+{% endblock %}

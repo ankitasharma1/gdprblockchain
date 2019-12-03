@@ -1,0 +1,40 @@
+{% extends 'navbar.html' %}
+{% block container %}
+  <div class="container">
+    <div class="header m-auto">
+      <h1 class="h2">Demo</h1>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mr-auto">
+        <div class="panel panel-primary">
+          <div class="panel-heading h5">Physicians</div>
+          <div class="panel-body fixed-panel">
+            <a href="{{ url_for('dashboard', entity_type='physician', name='Sally') }}">Sally</a><br>
+            <a href="#">Physician Name 2</a><br>
+            <a href="#">Physician Name 3</a><br>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mr-auto">
+        <div class="panel panel-primary">
+          <div class="panel-heading h5">Patients</div>
+          <div class="panel-body fixed-panel">
+            <a href="{{ url_for('dashboard', entity_type='patient', name='Jimmy') }}">Jimmy</a><br>
+            <a href="#">Patient Name 2</a><br>
+            <a href="#">Patient Name 3</a><br>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-primary">
+          <div class="panel-heading h5">Hospital</div>
+          <div class="panel-body fixed-panel">
+            <a href="{{ url_for('dashboard', entity_type='hospital', name='Hosptial') }}">Hosptial</a><br>
+            <a href="#">Hospital Name 2</a><br>
+            <a href="#">Hospital Name 3</a><br>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
