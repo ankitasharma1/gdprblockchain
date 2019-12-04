@@ -176,7 +176,7 @@ class Blockchain:
                 return True
         return False
 
-   # Return public key stored in block for given hash.
+    # Return public key stored in block for given hash.
     def get_pub_key(self, hash_uid):
         for block in self.chain:
             if block.hash_id == hash_uid:
@@ -197,7 +197,23 @@ class Blockchain:
             print("Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key)        
             print("=======")
         print("\n\n")
-    
+        return printable
+
+    def get_printable_bc(self):
+        printable = "\n\n"
+        for block in self.chain:
+            printable += "======="
+            index = str(block.index)
+            timestamp = block.time_string
+            prev_hash = str(block.previous_hash)
+            nonce = str(block.nonce)
+            hash_id = str(block.hash_id)
+            pub_key = str(block.pub_key)
+            printable += "Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key
+            printable += "======="
+        printable += "\n\n"
+        return printable
+
     # Helper function to validate the hash given the difficulty.
     def validate_hash(self, block):
         computed_hash = block.compute_hash()

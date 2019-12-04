@@ -11,6 +11,8 @@ from constants import TYPE
 import constants
 import patient_msg
 import card_helper
+from flask import Flask, request, render_template, jsonify
+import json
 
 """
 Supported Commands
@@ -26,6 +28,15 @@ NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
 
 phys = None
 parser = Parser()
+
+PHYSICIAN_PORT = {
+    'bob': 8008,
+    'alice': 8009,
+    'jane': 8010
+}
+
+app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
+
 
 def main():
     """
@@ -75,6 +86,11 @@ def main():
     t.daemon = True
     t.start()
 
+    # Start flask server for frontend
+    t = Thread(target=flask_thread(), args=())
+    t.daemon = True
+    t.start()
+
     # Wait for termination.
     termination = False    
     cv.acquire()
@@ -116,8 +132,7 @@ def register(hosp_name):
         return
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
-    phys.register(hosp_name, hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
-    return
+    return phys.register(hosp_name, hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
 
 def handle_connection(s):
     while True:
@@ -195,5 +210,28 @@ def clean_up(c):
     print("Closing connection")
     c.close()
 
+
+@app.route('/dashboard/physician/' + phys.name, methods=['GET', 'POST'])
+def dashboard():
+    if request.method == 'GET':
+        return render_template('dashboard.html', entity_type='physician', name=phys.name)
+    elif request.method == 'POST':
+        req_dict = request.get_json()
+        if 'register' in req_dict:
+            hospital_name = req_dict['hospital_name']
+            if register(hospital_name):
+                response = "Registration successful"
+            else:
+                response = "Error registering"
+        elif 'hospitals' in req_dict:
+            response = phys.get_hospitals()
+        # TODO: Finish physician APIs by hooking into the handle_message def
+        else:
+            response = json.dumps({'success': False}), 400, {'ContentType': 'application/json'}
+        return jsonify(response)
+
+
+def flask_thread():
+    app.run(port=PHYSICIAN_PORT[phys.name])
 
 main()

@@ -8,6 +8,8 @@ from constants import ADDRESS
 from constants import PORT
 from constants import MESSAGE_SIZE
 import constants
+from flask import Flask, request, render_template, jsonify
+import json
 
 """
 Supported Commands
@@ -38,6 +40,15 @@ NUM_PHYS_TRANSFER_PARAMS = 3 # 'phys_transfer' [src_hospital_name] [physician_na
 
 p = None
 parser = Parser()
+
+PATIENT_PORT = {
+    'sally': 8005,
+    'eric': 8006,
+    'joe': 8007
+}
+
+app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
+
 
 def main():
     """
@@ -82,6 +93,11 @@ def main():
 
     # Spawn connection thread.
     t = Thread(target=handle_connection, args=(s,))
+    t.daemon = True
+    t.start()
+
+    # Start flask server for frontend
+    t = Thread(target=flask_thread(), args=())
     t.daemon = True
     t.start()
 
@@ -176,7 +192,7 @@ def phys_transfer(src_hospital_name, phys_name):
         return
 
     phys_contact_info = parser.get_phys_contact_info(phys_name)
-    p.phys_transfer(src_hospital_name, phys_contact_info[ADDRESS], phys_contact_info[PORT])    
+    return p.phys_transfer(src_hospital_name, phys_contact_info[ADDRESS], phys_contact_info[PORT])
 
 def transfer(src_hospital_name, dest_hospital_name):
     if not parser.valid_hosp(src_hospital_name):
@@ -190,8 +206,7 @@ def transfer(src_hospital_name, dest_hospital_name):
         return
 
     src_hosp_contact_info = parser.get_hosp_contact_info(src_hospital_name)
-    p.transfer(src_hosp_contact_info[ADDRESS], src_hosp_contact_info[PORT], dest_hospital_name)
-    return
+    return p.transfer(src_hosp_contact_info[ADDRESS], src_hosp_contact_info[PORT], dest_hospital_name)
 
 def remove(hosp_name):
     if not parser.valid_hosp(hosp_name):
@@ -199,8 +214,7 @@ def remove(hosp_name):
         return
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
-    p.remove(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
-    return
+    return p.remove(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
 
 
 def phys_read(phys_name):
@@ -209,26 +223,23 @@ def phys_read(phys_name):
         return
 
     phys_contact_info = parser.get_phys_contact_info(phys_name)
-    p.phys_read(phys_contact_info[ADDRESS], phys_contact_info[PORT])
-    return
+    return p.phys_read(phys_contact_info[ADDRESS], phys_contact_info[PORT])
 
 def read(hosp_name):
     if not parser.valid_hosp(hosp_name):
         print("ERROR: invalid hospital - %s" %(parser.get_hosp_names_string()))
-        return
+        return "ERROR: invalid hospital - %s" %(parser.get_hosp_names_string())
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
-    p.read(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
-    return
+    return p.read(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
 
 def treatment(phys_name):
     if not parser.valid_phys(phys_name):
         print("ERROR: invalid physician name - %s" %(parser.get_phys_names_string()))
-        return
+        return False
 
     phys_contact_info = parser.get_phys_contact_info(phys_name)
-    p.seek_treatment(phys_contact_info[ADDRESS], phys_contact_info[PORT])
-    return
+    return p.seek_treatment(phys_contact_info[ADDRESS], phys_contact_info[PORT])
 
 def register(hosp_name):
     if not parser.valid_hosp(hosp_name):
@@ -269,6 +280,67 @@ def listen_on_socket(c):
 def clean_up(c):
     print("Closing connection")
     c.close()
+
+
+@app.route('/dashboard/patient/' + p.name, methods=['GET', 'POST'])
+def dashboard():
+    if request.method == 'GET':
+        return render_template('dashboard.html', entity_type='patient', name=p.name)
+    elif request.method == 'POST':
+        req_dict = request.get_json()
+        if 'physicians' in req_dict:
+            response = parser.get_phys_names_string()
+        elif 'hospitals' in req_dict:
+            response = parser.get_hosp_names_string()
+        elif 'register' in req_dict:
+            hospital_name = req_dict['register']
+            register(hospital_name)
+            response = p.card
+        elif 'card' in req_dict:
+            response = p.card
+        elif 'treatment' in req_dict:
+            physician_name = req_dict['treatment']
+            result = treatment(physician_name)
+            if result:
+                response = 'Treatment completed'
+            else:
+                response = 'Error getting treated'
+        elif 'read' in req_dict:
+            hospital_name = req_dict['read']
+            response = read(hospital_name)
+        elif 'physician_read' in req_dict:
+            physician_name = req_dict['physician_name']
+            response = phys_read(physician_name)
+        elif 'remove_card' in req_dict:
+            p.card = None
+            response = p.card
+        elif 'remove' in req_dict:
+            hospital_name = req_dict['hospital_name']
+            if remove(hospital_name):
+                response = "Records from %s removed successfully" % hospital_name
+            else:
+                response = "Error removing records from %s" % hospital_name
+        elif 'transfer' in req_dict:
+            src_hospital = req_dict['src_hospital']
+            dest_hospital = req_dict['dest_hospital']
+            if transfer(src_hospital, dest_hospital):
+                response = "Successfully transferred records to %s" % dest_hospital
+            else:
+                response = "Error transferring records"
+        elif 'physician_transfer' in req_dict:
+            src_hospital = req_dict['src_hospital']
+            physician_name = req_dict['physician_name']
+            if phys_transfer(src_hospital, physician_name):
+                response = "Successfully transferred records to %s" % physician_name
+            else:
+                response = "Error transferring records"
+        else:
+            response = json.dumps({'success':False}), 400, {'ContentType':'application/json'}
+        return jsonify(response)
+
+
+def flask_thread():
+    app.run(port=PATIENT_PORT[p.name])
 
 main()
     

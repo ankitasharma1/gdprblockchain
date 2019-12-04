@@ -125,34 +125,37 @@ class Patient:
         :return: nothing
         """       
         if self.card:
+            all_records = []
             socket = self.send_msg_get_socket(patient_msg.read_msg(self.card.uid), hospital_address, hospital_port)
             if isinstance(socket, int):
-                return
+                return "No records were retrieved due to socket error"
             data = socket.recv(MESSAGE_SIZE)
             if data:
                 responses = constants.deserialize(data)
                 for response in responses:
                     if isinstance(response , int):
                         socket.close()
-                        return
+                        return all_records
                     if response.get(patient_msg.RESPONSE):
-                        print(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))                
+                        print(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))
+                        all_records.append(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))
                         num_blocks = response.get(patient_msg.NUM_BLOCKS)
                         # Special casing the first response before reading the rest.
                         for i in range(1, num_blocks):
                             data = socket.recv(MESSAGE_SIZE)
                             if data:
                                 responses = constants.deserialize(data)
-                                for response in responses: 
-       		                        print(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))
-            
+                                for response in responses:
+                                    print(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))
+                                    all_records.append(crypto.decrypt(response.get(patient_msg.BLOCK), self.card.priv_key))
                     else:
                         print("No records were retrieved.")
-                        break
+                        return "No records were retrieved"
             socket.close()
 
         else:
-            print("ERROR: Must register with a hospital first")               
+            print("ERROR: Must register with a hospital first")
+            return "ERROR: Must register with a hospital first before reading records"
 
     def phys_read(self, physician_address, physician_port):
         """
@@ -173,8 +176,10 @@ class Patient:
                 return True
             else:
                 print("Unable to have records read.")
+                return
         else:
             print("ERROR: Must register with a hospital first")
+            return
 
 
     def remove(self, hospital_address, hospital_port):
@@ -188,7 +193,7 @@ class Patient:
             response = self.send_msg(patient_msg.remove_msg(self.card_path), hospital_address, hospital_port)
             if isinstance(response , int):
                 print("ERROR: Hospital server error")
-                return
+                return False
  
             # Hospital returns a boolean.
             if response.get(patient_msg.RESPONSE):

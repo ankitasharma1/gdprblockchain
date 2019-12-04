@@ -15,6 +15,8 @@ import phys_msg
 import hospital_msg
 import crypto
 import card_helper
+from flask import Flask, request, render_template, jsonify
+import json
 
 """
 Supported Commands
@@ -25,6 +27,16 @@ DB = 'db'
 
 h = None
 parser = Parser()
+
+HOSPITAL_MSGS = []
+HOSPITAL_PORT = {
+    'hospital_1': 8002,
+    'hospital_2': 8003,
+    'hospital_3': 8004
+}
+
+app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
+
 
 def main():
     """
@@ -68,6 +80,11 @@ def main():
 
     # Spawn connection thread.
     t = Thread(target=handle_connection, args=(s,))
+    t.daemon = True
+    t.start()
+
+    # Start flask server for frontend
+    t = Thread(target=flask_thread(), args=())
     t.daemon = True
     t.start()
 
@@ -146,6 +163,7 @@ def handle_message(message):
         patient_name = message.get(patient_msg.PATIENT_NAME)
         patient_id = message.get(patient_msg.PATIENT_ID)
         print("-------> Register Patient %s" %(patient_name))
+        HOSPITAL_MSGS.append("-------> Register Patient %s" %(patient_name))
         # API Call #
         card = h.register_patient(patient_name, patient_id)
         if card == None:
@@ -168,6 +186,7 @@ def handle_message(message):
         physician_name = message.get(phys_msg.PHYSICIAN_NAME)
         physician_id = message.get(phys_msg.PHYSICIAN_ID)
         print("-------> Register Physician %s" %(physician_name))
+        HOSPITAL_MSGS.append("-------> Register Physician %s" %(physician_name))
         # API Call #
         response = h.register_physician(physician_name, physician_id)
         if response:
@@ -182,6 +201,7 @@ def handle_message(message):
         card = card_helper.get_card_object(card_path)
         med_rec = medical_record.get_medical_record(med_rec_string)
         print("-------> Write Request")
+        HOSPITAL_MSGS.append("-------> Write Request")
         response = h.write(card, med_rec, physician_id)
         if response:
             return phys_msg.write_response_msg(True)
@@ -190,6 +210,7 @@ def handle_message(message):
     elif type == patient_msg.READ:
         card_uid = message.get(patient_msg.CARD_UID)
         print("-------> Read Request")
+        HOSPITAL_MSGS.append("-------> Read Request")
         blocks = h.read(card_uid)
         return blocks
     elif type == patient_msg.REMOVE:
@@ -197,6 +218,7 @@ def handle_message(message):
         # Convert params into objects.
         card = card_helper.get_card_object(card_path)
         print("-------> Remove Request from %s" %(card.patient_name))
+        HOSPITAL_MSGS.append("-------> Remove Request from %s" %(card.patient_name))
         response = h.remove(card)
         if response:
             return patient_msg.remove_response_msg(True)
@@ -209,6 +231,7 @@ def handle_message(message):
         card = card_helper.get_card_object(card_path)
         dest_hosp_contact_info = parser.get_hosp_contact_info(dest_hosp_name)
         print("-------> Transfer Request from %s" %(card.patient_name))
+        HOSPITAL_MSGS.apppend("-------> Transfer Request from %s" %(card.patient_name))
         response = h.transfer(card, card_path, dest_hosp_name, dest_hosp_contact_info[ADDRESS], dest_hosp_contact_info[PORT])
         if response:
             return patient_msg.transfer_response_msg(True)
@@ -218,6 +241,7 @@ def handle_message(message):
         db_key = message.get(hospital_msg.DB_KEY)
         block = message.get(hospital_msg.BLOCK)
         print("---------> Transfer Write")
+        HOSPITAL_MSGS.append("---------> Transfer Write")
         response = h.transfer_write(db_key, block)
         if response:
             return hospital_msg.transfer_write_response_msg(True)
@@ -229,6 +253,28 @@ def handle_message(message):
 def clean_up(c):
     print("Closing connection")
     c.close()
+
+
+@app.route('/dashboard/hospital/'+ h.name, methods=['GET', 'POST'])
+def dashboard():
+    if request.method == 'GET':
+        return render_template('dashboard.html', entity_type='hospital', name=h.name)
+    elif request.method == 'POST':
+        req_dict = request.get_json()
+        if 'get_staff' in req_dict:
+            response = h.get_staff()
+        elif 'get_db' in req_dict:
+            response = h.get_db()
+        elif 'update' in req_dict:
+            response = HOSPITAL_MSGS
+        else:
+            response = json.dumps({'success':False}), 400, {'ContentType':'application/json'}
+        return jsonify(response)
+
+
+def flask_thread():
+    app.run(port=HOSPITAL_PORT[h.name])
+
 
 main()
     
