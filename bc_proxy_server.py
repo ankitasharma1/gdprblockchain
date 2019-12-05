@@ -166,7 +166,9 @@ def blockchain():
     if request.method == 'GET':
         return render_template('blockchain.html')
     if request.method == 'POST':
-        req_dict = request.get_json()
+        print("request: %s" % request)
+        print("req.form: %s" % request.form)
+        req_dict = request.form
         if 'cmd' in req_dict:
             response = bc.get_printable_bc()
         # elif req_dict['msg']:

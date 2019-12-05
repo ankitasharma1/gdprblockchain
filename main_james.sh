@@ -15,7 +15,7 @@ tab "python hospital_proxy_server.py hospital_2";
 tab "python hospital_proxy_server.py hospital_3";
 
 # physicians
-tab "python physician_proxy_client.py bob &";
+tab "python physician_proxy_client.py bob";
 tab "python physician_proxy_client.py alice";
 tab "python physician_proxy_client.py jane";
 
