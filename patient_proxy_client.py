@@ -46,6 +46,7 @@ PATIENT_PORT = {
     'eric': 8006,
     'joe': 8007
 }
+__DASHBOARD_ROUTE__ = ""
 
 app = Flask(__name__, static_url_path='', static_folder='static', template_folder='templates')
 
@@ -282,8 +283,9 @@ def clean_up(c):
     c.close()
 
 
-@app.route('/dashboard/patient/' + p.name, methods=['GET', 'POST'])
+@app.route('/dashboard/patient/' + sys.argv[1], methods=['GET', 'POST'])
 def dashboard():
+    global p
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='patient', name=p.name)
     elif request.method == 'POST':

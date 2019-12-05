@@ -255,8 +255,10 @@ def clean_up(c):
     c.close()
 
 
-@app.route('/dashboard/hospital/'+ h.name, methods=['GET', 'POST'])
+@app.route('/dashboard/hospital/'+ sys.argv[1], methods=['GET', 'POST'])
 def dashboard():
+    global HOSPITAL_MSGS
+    global h
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='hospital', name=h.name)
     elif request.method == 'POST':

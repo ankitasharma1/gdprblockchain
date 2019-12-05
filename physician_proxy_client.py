@@ -13,6 +13,7 @@ import patient_msg
 import card_helper
 from flask import Flask, request, render_template, jsonify
 import json
+from requests import post
 
 """
 Supported Commands
@@ -29,6 +30,9 @@ NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
 phys = None
 parser = Parser()
 
+PHYSICIAN_TREATMENT_MSGS = []
+PHYSICIAN_READ_MSGS = []
+GLOBAL_CARD_PATH = None
 PHYSICIAN_PORT = {
     'bob': 8008,
     'alice': 8009,
@@ -166,24 +170,26 @@ def handle_message(message):
     type = message.get(TYPE)
     if type == patient_msg.SEEK_TREATMENT:
         card_path = message.get(patient_msg.CARD_PATH)
-        card = card_helper.get_card_object(card_path)
-        print("-------> Request for treatment from %s" %(card.patient_name))
-        # API Call #
-        hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
-        # TODO: Don't hardcode this.
-        notes = "Patient looks good to me."        
-        if phys.seek_treatment(card_path, notes, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
-            return patient_msg.seek_treatment_msg_response(True)
-        return patient_msg.seek_treatment_msg_response(False)   
+        resp = post('127.0.0.1/dashboard/physician/%s/seek_treatment', {'seek_treatment': card_path} )
+        if resp == 'None':
+            return "Error"
+        else:
+            return "Success"
     elif type == patient_msg.PHYS_READ:
+        global PHYSICIAN_READ_MSGS
         card_path = message.get(patient_msg.CARD_PATH)
         card = card_helper.get_card_object(card_path)
-        print("-------> Request to read medical records for %s" %(card.patient_name))
+        print("-------> Request to read medical records for %s" % card.patient_name)
+        PHYSICIAN_READ_MSGS.append("-------> Request to read medical records for %s" % card.patient_name)
         # API Call #
         hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
         if phys.read_patient_record(card_path, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
-            return patient_msg.phys_read_response_msg(True)
-        return patient_msg.phys_read_response_msg(False)   
+            resp = patient_msg.phys_read_response_msg(True)
+            PHYSICIAN_READ_MSGS.append(resp)
+            return resp
+        resp = patient_msg.phys_read_response_msg(False)
+        PHYSICIAN_READ_MSGS.append(resp)
+        return resp
     elif type == patient_msg.PHYS_TRANSFER:
         card_path = message.get(patient_msg.CARD_PATH)
         card = card_helper.get_card_object(card_path)
@@ -211,8 +217,11 @@ def clean_up(c):
     c.close()
 
 
-@app.route('/dashboard/physician/' + phys.name, methods=['GET', 'POST'])
+@app.route('/dashboard/physician/' + sys.argv[1], methods=['GET', 'POST'])
 def dashboard():
+    global GLOBAL_CARD_PATH
+    global PHYSICIAN_READ_MSGS
+    global PHYSICIAN_TREATMENT_MSGS
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='physician', name=phys.name)
     elif request.method == 'POST':
@@ -226,6 +235,29 @@ def dashboard():
         elif 'hospitals' in req_dict:
             response = phys.get_hospitals()
         # TODO: Finish physician APIs by hooking into the handle_message def
+        elif 'seek_treatment' in req_dict:
+            if GLOBAL_CARD_PATH:
+                response = None
+            else:
+                GLOBAL_CARD_PATH = req_dict['seek_treatment']
+                card = card_helper.get_card_object(GLOBAL_CARD_PATH)
+                PHYSICIAN_TREATMENT_MSGS.append("-------> Request for treatment from %s" % card.patient_name)
+                response = json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+        elif 'submit_treatment' in req_dict:
+            if GLOBAL_CARD_PATH:
+                card = card_helper.get_card_object(GLOBAL_CARD_PATH)
+                hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
+                notes = req_dict['submit_treatment']
+                if phys.seek_treatment(GLOBAL_CARD_PATH, notes, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
+                    response = patient_msg.seek_treatment_msg_response(True)
+                    GLOBAL_CARD_PATH = None
+                else:
+                    response = patient_msg.seek_treatment_msg_response(False)
+                    GLOBAL_CARD_PATH = None
+            else:
+                response = json.dumps({'success': False}), 404, {'ContentType': 'application/json'}
+        elif 'read' in req_dict:
+            response = PHYSICIAN_READ_MSGS
         else:
             response = json.dumps({'success': False}), 400, {'ContentType': 'application/json'}
         return jsonify(response)
