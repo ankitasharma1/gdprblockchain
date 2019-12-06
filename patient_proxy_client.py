@@ -306,9 +306,9 @@ def dashboard():
             physician_name = request.form.get('treatment')
             result = treatment(physician_name)
             if result:
-                response = 'Treatment completed'
+                response = 'Treatment requested successfully'
             else:
-                response = 'Error getting treated'
+                response = 'Error getting requesting treatment'
         elif 'read' in request.form:
             hospital_name = request.form.get('read')
             response = read(hospital_name)
@@ -344,7 +344,8 @@ def dashboard():
 
 
 def flask_thread():
-    app.run(port=PATIENT_PORT[p.name])
+    # TODO: disable debug
+    app.run(debug=True, port=PATIENT_PORT[p.name])
 
 main()
     

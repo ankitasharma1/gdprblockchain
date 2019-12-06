@@ -264,6 +264,7 @@ def dashboard():
 
 
 def flask_thread():
-    app.run(port=PHYSICIAN_PORT[phys.name])
+    # TODO: disable debug
+    app.run(debug=True, port=PHYSICIAN_PORT[phys.name])
 
 main()

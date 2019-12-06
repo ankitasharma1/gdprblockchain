@@ -151,8 +151,11 @@ class Patient:
                     else:
                         print("No records were retrieved.")
                         return "No records were retrieved"
+                if all_records:
+                    return all_records
+                else:
+                    return "No records found"
             socket.close()
-
         else:
             print("ERROR: Must register with a hospital first")
             return "ERROR: Must register with a hospital first before reading records"
