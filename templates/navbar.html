@@ -19,35 +19,9 @@
         <a class="p-2 text-dark" href="http://127.0.0.1:8080/about">About</a>
       </nav>
     </div>
-    {% block container %}{% endblock %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        function updateBlockchainBlocks() {
-            $.ajax({
-                url: "http://127.0.0.1:8001/blockchain",
-                type: "POST",
-                dataType: 'json',
-                data: {cmd: 'true'},
-                error: function (request, status, error) {
-                  console.log('Error: ' + error);
-                  alert('Error: ' + error);
-                  console.log('Request: ' + request)
-                },
-                success: function (response) {
-                    $('#block_data').html(response)
-                }
-            });
-            console.log("I updated")
-        }
-
-        $( document ).ready(function() {
-            console.log('Hello');
-            setTimeout(updateBlockchainBlocks, 5000);
-        });
-
-    </script>
+    {% block container %}{% endblock %}
   </body>
-
 </html>

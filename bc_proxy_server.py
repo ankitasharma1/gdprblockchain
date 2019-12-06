@@ -175,9 +175,11 @@ def blockchain():
         #     BLOCKCHAIN_MSGS.append(req_dict['msg'])
         #     response = json.dumps({'success':True}), 200, {'ContentType':'application/json'}
         elif 'update' in req_dict:
-            response = jsonify(BLOCKCHAIN_MSGS)
+            response = ""
+            for msg in BLOCKCHAIN_MSGS:
+                response += msg + '\n'
         else:
-            response = json.dumps({'success':False}), 400, {'ContentType':'application/json'}
+            response = "ERROR request to flask not recognized"
         return jsonify(response)
 
 

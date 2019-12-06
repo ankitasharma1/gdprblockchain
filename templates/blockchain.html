@@ -19,4 +19,50 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript">
+      function updateBlockchainBlocks() {
+          $.ajax({
+              url: "http://127.0.0.1:8001/blockchain",
+              type: "POST",
+              dataType: 'json',
+              data: {cmd: 'true'},
+              error: function (request, status, error) {
+                  alert('Error: ' + error);
+              },
+              success: function (response) {
+                  $('#block_data').html(response)
+              }
+          });
+          updateBlockchainBlocksTimer();
+      }
+
+      function updateLogs() {
+          $.ajax({
+              url: "http://127.0.0.1:8001/blockchain",
+              type: "POST",
+              dataType: 'json',
+              data: {update: 'true'},
+              error: function (request, status, error) {
+                  alert('Error: ' + error);
+              },
+              success: function (response) {
+                  $('#logs').html(response)
+              }
+          });
+          updateLogsTimer();
+      }
+
+      function updateBlockchainBlocksTimer(){
+          setTimeout(function (){updateBlockchainBlocks()}, 2000);
+      }
+
+      function updateLogsTimer(){
+          setTimeout(function (){updateLogs()}, 2000);
+      }
+
+      $( document ).ready(function() {
+          updateBlockchainBlocks();
+          updateLogs();
+      });
+  </script>
 {% endblock %}
