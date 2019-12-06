@@ -201,11 +201,27 @@
         </div>
       </div>
       <script>
-        function makeHospBtn(hosp_name){
+        function makeHospRegBtn(hosp_name){
             return '<a class="btn btn-primary mr-1" href="#" onclick="patientRegister(\'' + hosp_name + '\');">' + hosp_name + '<a>';
         }
 
-        function updateHospitalList() {
+        function makeHospReadBtn(hosp_name){
+            return '<a class="btn btn-primary mr-1" href="#" onclick="readRequest(\'' + hosp_name + '\');">' + hosp_name + '<a>';
+        }
+
+        function makeHospRemoveBtn(hosp_name){
+            return '<a class="btn btn-primary mr-1" href="#" onclick="removeRequest(\'' + hosp_name + '\');">' + hosp_name + '<a>';
+        }
+
+        function makePhysReadBtn(phys_name){
+            return '<a class="btn btn-primary mr-1" href="#" onclick="physRead(\'' + phys_name + '\');">' + phys_name + '<a>';
+        }
+
+        function makeTreatmentBtn(phys_name){
+            return '<a class="btn btn-primary mr-1" href="#" onclick="requestTreatment(\'' + phys_name + '\');">' + phys_name + '<a>';
+        }
+
+        function getHospitalList() {
             $.ajax({
                 url: "/dashboard/patient/{{ name }}",
                 type: "POST",
@@ -218,18 +234,61 @@
                     let hosp_list_div = $('#hospital-listing');
                     hosp_list_div.empty();
 
+                    let read_hosp_list_div = $('#read-hospital-list');
+                    read_hosp_list_div.empty();
+
+                    let rm_hosp_list_div = $('#remove-hospital-list');
+                    rm_hosp_list_div.empty();
+
                     let hosp_names = response.split(',');
                     for (let i = 0; i < hosp_names.length; i++){
                         if (hosp_names[i] === ""){
                             // there is a weird blank space that I don't know how to get rid of
                             continue;
                         }
-                        let hosp_btn = makeHospBtn(hosp_names[i]);
+                        let hosp_btn = makeHospRegBtn(hosp_names[i]);
                         hosp_list_div.append(hosp_btn);
+
+                        let read_hosp_btn = makeHospReadBtn(hosp_names[i]);
+                        read_hosp_list_div.append(read_hosp_btn);
+
+                        let rm_hosp_btn = makeHospRemoveBtn(hosp_names[i]);
+                        rm_hosp_list_div.append(rm_hosp_btn);
                     }
                 }
             });
-            updateHospitalListTimer();
+        }
+
+        function getPhysicianList() {
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {physicians: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let phys_list_div = $('#read-physician-list');
+                    phys_list_div.empty();
+
+                    let treatment_list_div = $('#treatment-list');
+                    treatment_list_div.empty();
+
+                    let phys_names = response.split(',');
+                    for (let i = 0; i < phys_names.length; i++){
+                        if (phys_names[i] === ""){
+                            // there is a weird blank space that I don't know how to get rid of
+                            continue;
+                        }
+                        let phys_btn = makePhysReadBtn(phys_names[i]);
+                        phys_list_div.append(phys_btn);
+
+                        let treatment_btn = makeTreatmentBtn(phys_names[i]);
+                        treatment_list_div.append(treatment_btn);
+                    }
+                }
+            });
         }
 
         function requestTreatment(physician_name) {
@@ -242,22 +301,48 @@
                     alert('Error: ' + error);
                 },
                 success: function (response) {
-                    let hosp_list_div = $('#hospital-listing');
-                    hosp_list_div.empty();
+                    let treatment_output_div = $('#treatment-output');
+                    treatment_output_div.empty();
 
-                    let hosp_names = response.split(',');
-                    for (let i = 0; i < hosp_names.length; i++){
-                        if (hosp_names[i] === ""){
-                            // there is a weird blank space that I don't know how to get rid of
-                            continue;
-                        }
-                        let hosp_btn = makeHospBtn(hosp_names[i]);
-                        hosp_list_div.append(hosp_btn);
-                    }
+                    treatment_output_div.html(response);
                 }
             });
-            updateHospitalListTimer();
+        }
 
+        function readRequest(hospital_name) {
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {read: hospital_name},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let read_output_div = $('#read-output');
+                    read_output_div.empty();
+
+                    read_output_div.html(response);
+                }
+            });
+        }
+
+        function removeRequest(hospital_name) {
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {remove: hospital_name},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let remove_output_div = $('#remove-output');
+                    remove_output_div.empty();
+
+                    remove_output_div.html(response);
+                }
+            });
         }
 
         function patientRegister(hosp_name){
@@ -277,8 +362,22 @@
            });
         }
 
-        function updateHospitalListTimer(){
-            setTimeout(function (){updateHospitalList()}, 2000);
+        function physRead(phys_name){
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {physician_read: phys_name},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let read_phys_output_div = $('#read-physician-output');
+                    read_phys_output_div.empty();
+
+                    read_phys_output_div.html(response);
+                }
+            });
         }
 
         function tryLoadCard(){
@@ -304,7 +403,8 @@
         }
 
         $(document).ready(function() {
-            updateHospitalList();
+            getHospitalList();
+            getPhysicianList();
             tryLoadCard();
         })
       </script>

@@ -92,11 +92,11 @@ class Parser():
 
     def get_phys_names_string(self):
         phys_names = ""
-        for phys_name in self.physicians.keys():
-            if len(phys_names) == 0:
-                phys_names = phys_names + "\n" + phys_name + "\n"
+        for i, phys_name in enumerate(self.physicians.keys()):
+            if len(self.physicians) == i:
+                phys_names += phys_name
             else:
-                phys_names = phys_names + phys_name + "\n"
+                phys_names += phys_name + ","
         return phys_names
 
     def valid_phys(self, phys):

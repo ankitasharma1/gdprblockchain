@@ -211,8 +211,8 @@ def transfer(src_hospital_name, dest_hospital_name):
 
 def remove(hosp_name):
     if not parser.valid_hosp(hosp_name):
-        print("ERROR: invalid hospital - %s" %(parser.get_hosp_names_string()))
-        return
+        print("ERROR: invalid hospital %s - %s" %(hosp_name, parser.get_hosp_names_string()))
+        return "ERROR: invalid hospital %s - %s" %(hosp_name, parser.get_hosp_names_string())
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
     return p.remove(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
@@ -221,15 +221,15 @@ def remove(hosp_name):
 def phys_read(phys_name):
     if not parser.valid_phys(phys_name):
         print("ERROR: invalid physician name - %s" %(parser.get_phys_names_string()))
-        return
+        return "ERROR: invalid physician name - %s" %(parser.get_phys_names_string())
 
     phys_contact_info = parser.get_phys_contact_info(phys_name)
     return p.phys_read(phys_contact_info[ADDRESS], phys_contact_info[PORT])
 
 def read(hosp_name):
     if not parser.valid_hosp(hosp_name):
-        print("ERROR: invalid hospital - %s" %(parser.get_hosp_names_string()))
-        return "ERROR: invalid hospital - %s" %(parser.get_hosp_names_string())
+        print("ERROR: invalid hospital %s - %s" %(hosp_name, parser.get_hosp_names_string()))
+        return "ERROR: invalid hospital %s - %s" %(hosp_name, parser.get_hosp_names_string())
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
     return p.read(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
@@ -313,13 +313,13 @@ def dashboard():
             hospital_name = request.form.get('read')
             response = read(hospital_name)
         elif 'physician_read' in request.form:
-            physician_name = request.form.get('physician_name')
+            physician_name = request.form.get('physician_read')
             response = phys_read(physician_name)
         elif 'remove_card' in request.form:
             p.card = None
             response = str(p.card)
         elif 'remove' in request.form:
-            hospital_name = request.form.get('hospital_name')
+            hospital_name = request.form.get('remove')
             if remove(hospital_name):
                 response = "Records from %s removed successfully" % hospital_name
             else:
