@@ -22,10 +22,77 @@
         <div class="card w-100">
           <div class="card-body">
             <div class="card-title h5">Logs from Hospital Service</div>
-            <div class="card-text" id="staff-feed">Logs stuff</div>
+            <div class="card-text" id="hospital-logs">Logs stuff</div>
           </div>
         </div>
       </div>
+      <script type="text/javascript">
+        function updateDatabase() {
+          $.ajax({
+            url: "/dashboard/hospital/{{ name }}",
+            type: "POST",
+            dataType: 'json',
+            data: {get_db: 'true'},
+            error: function (request, status, error) {
+              alert('Error: ' + error);
+            },
+            success: function (response) {
+              $('#db-feed').html(response)
+            }
+          });
+          updateDatabaseTimer();
+        }
+
+        function updateStaff() {
+            $.ajax({
+                url: "/dashboard/hospital/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {get_staff: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    $('#staff-feed').html(response)
+                }
+            });
+            updateStaffTimer();
+        }
+
+        function updateHospitalLogs() {
+            $.ajax({
+                url: "/dashboard/hospital/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {update: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    $('#hospital-logs').html(response)
+                }
+            });
+            updateHospitalLogsTimer();
+        }
+
+        function updateDatabaseTimer(){
+            setTimeout(function (){updateDatabase()}, 2000);
+        }
+
+        function updateStaffTimer(){
+            setTimeout(function (){updateStaff()}, 2000);
+        }
+
+        function updateHospitalLogsTimer(){
+            setTimeout(function (){updateHospitalLogs()}, 2000);
+        }
+
+        $(document).ready(function() {
+            updateDatabase();
+            updateStaff();
+            updateHospitalLogs();
+        })
+      </script>
     {% elif entity_type == 'patient' %}
       <div class="col-md-4 mr-auto pr-4 pl-4">
         <div class="row">

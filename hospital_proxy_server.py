@@ -262,15 +262,16 @@ def dashboard():
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='hospital', name=h.name)
     elif request.method == 'POST':
-        req_dict = request.get_json()
-        if 'get_staff' in req_dict:
+        if 'get_staff' in request.form:
             response = h.get_staff()
-        elif 'get_db' in req_dict:
+        elif 'get_db' in request.form:
             response = h.get_db()
-        elif 'update' in req_dict:
-            response = HOSPITAL_MSGS
+        elif 'update' in request.form:
+            response = ""
+            for msg in HOSPITAL_MSGS:
+                response += msg
         else:
-            response = json.dumps({'success':False}), 400, {'ContentType':'application/json'}
+            response = "Error in Flask request"
         return jsonify(response)
 
 

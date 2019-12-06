@@ -289,55 +289,54 @@ def dashboard():
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='patient', name=p.name)
     elif request.method == 'POST':
-        req_dict = request.get_json()
-        if 'physicians' in req_dict:
+        if 'physicians' in request.form:
             response = parser.get_phys_names_string()
-        elif 'hospitals' in req_dict:
+        elif 'hospitals' in request.form:
             response = parser.get_hosp_names_string()
-        elif 'register' in req_dict:
-            hospital_name = req_dict['register']
+        elif 'register' in request.form:
+            hospital_name = request.form.get('register')
             register(hospital_name)
             response = p.card
-        elif 'card' in req_dict:
+        elif 'card' in request.form:
             response = p.card
-        elif 'treatment' in req_dict:
-            physician_name = req_dict['treatment']
+        elif 'treatment' in request.form:
+            physician_name = request.form.get('treatment')
             result = treatment(physician_name)
             if result:
                 response = 'Treatment completed'
             else:
                 response = 'Error getting treated'
-        elif 'read' in req_dict:
-            hospital_name = req_dict['read']
+        elif 'read' in request.form:
+            hospital_name = request.form.get('read')
             response = read(hospital_name)
-        elif 'physician_read' in req_dict:
-            physician_name = req_dict['physician_name']
+        elif 'physician_read' in request.form:
+            physician_name = request.form.get('physician_name')
             response = phys_read(physician_name)
-        elif 'remove_card' in req_dict:
+        elif 'remove_card' in request.form:
             p.card = None
             response = p.card
-        elif 'remove' in req_dict:
-            hospital_name = req_dict['hospital_name']
+        elif 'remove' in request.form:
+            hospital_name = request.form.get('hospital_name')
             if remove(hospital_name):
                 response = "Records from %s removed successfully" % hospital_name
             else:
                 response = "Error removing records from %s" % hospital_name
-        elif 'transfer' in req_dict:
-            src_hospital = req_dict['src_hospital']
-            dest_hospital = req_dict['dest_hospital']
+        elif 'transfer' in request.form:
+            src_hospital = request.form.get('src_hospital')
+            dest_hospital = request.form.get('dest_hospital')
             if transfer(src_hospital, dest_hospital):
                 response = "Successfully transferred records to %s" % dest_hospital
             else:
                 response = "Error transferring records"
-        elif 'physician_transfer' in req_dict:
-            src_hospital = req_dict['src_hospital']
-            physician_name = req_dict['physician_name']
+        elif 'physician_transfer' in request.form:
+            src_hospital = request.form.get('src_hospital')
+            physician_name = request.form.get('physician_name')
             if phys_transfer(src_hospital, physician_name):
                 response = "Successfully transferred records to %s" % physician_name
             else:
                 response = "Error transferring records"
         else:
-            response = json.dumps({'success':False}), 400, {'ContentType':'application/json'}
+            response = "Error in Flask request"
         return jsonify(response)
 
 
