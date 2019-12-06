@@ -99,7 +99,8 @@
           <div class="h4">Name: <b>{{ name }}</b></div>
         </div>
         <div class="row">
-          <div class="h4" id="patient-id">Patient ID: <b>N/a</b></div>
+          <div class="h4">Patient ID:</div>
+          <div class="h5 text-muted" id="patient-id">N/a</div>
         </div>
         <div class="row pb-2">
           <div class="card w-100">
@@ -199,6 +200,86 @@
           </div>
         </div>
       </div>
+      <script>
+        function makeHospBtn(hosp_name){
+            return '<a class="btn btn-primary mr-1" href="#" onclick="patientRegister(\'' + hosp_name + '\');">' + hosp_name + '<a>';
+        }
+
+        function updateHospitalList() {
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {hospitals: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let hosp_list_div = $('#hospital-listing');
+                    hosp_list_div.empty();
+
+                    let hosp_names = response.split(',');
+                    for (let i = 0; i < hosp_names.length; i++){
+                        if (hosp_names[i] === ""){
+                            // there is a weird blank space that I don't know how to get rid of
+                            continue;
+                        }
+                        let hosp_btn = makeHospBtn(hosp_names[i]);
+                        hosp_list_div.append(hosp_btn);
+                    }
+                }
+            });
+            updateHospitalListTimer();
+        }
+
+       function patientRegister(hosp_name){
+           $.ajax({
+               url: "/dashboard/patient/{{ name }}",
+               type: "POST",
+               dataType: 'json',
+               data: {register: hosp_name},
+               error: function (request, status, error) {
+                   alert('Error: ' + error);
+               },
+               success: function (response) {
+                   $('#patient-card').html(response);
+                   let patient_id = response.split(',')[1];
+                   $('#patient-id').html(patient_id);
+               }
+           });
+       }
+
+        function updateHospitalListTimer(){
+            setTimeout(function (){updateHospitalList()}, 2000);
+        }
+
+        function tryLoadCard(){
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {card: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    if (response === "N/a"){
+                        $('#patient-card').html(response);
+                        $('#patient-id').html(response);
+                    } else {
+                        $('#patient-card').html(response);
+                        let patient_id = response.split(',')[1];
+                        $('#patient-id').html(patient_id);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            updateHospitalList();
+            tryLoadCard();
+        })
+      </script>
     {% elif entity_type == 'physician' %}
       <div class="col-md-6">
         <div class="row">

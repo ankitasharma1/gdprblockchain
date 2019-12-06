@@ -296,9 +296,12 @@ def dashboard():
         elif 'register' in request.form:
             hospital_name = request.form.get('register')
             register(hospital_name)
-            response = p.card
+            response = str(p.card)
         elif 'card' in request.form:
-            response = p.card
+            if p.card:
+                response = str(p.card)
+            else:
+                response = "N/a"
         elif 'treatment' in request.form:
             physician_name = request.form.get('treatment')
             result = treatment(physician_name)
@@ -314,7 +317,7 @@ def dashboard():
             response = phys_read(physician_name)
         elif 'remove_card' in request.form:
             p.card = None
-            response = p.card
+            response = str(p.card)
         elif 'remove' in request.form:
             hospital_name = request.form.get('hospital_name')
             if remove(hospital_name):

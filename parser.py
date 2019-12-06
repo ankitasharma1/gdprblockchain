@@ -68,11 +68,11 @@ class Parser():
 
     def get_hosp_names_string(self):
         hosp_names = ""
-        for hosp_name in self.hospitals.keys():
-            if len(hosp_names) == 0:
-                hosp_names = hosp_names + "\n" + hosp_name + "\n"
+        for i, hosp_name in enumerate(self.hospitals.keys()):
+            if i == len(self.hospitals.keys()):
+                hosp_names += hosp_name
             else:
-                hosp_names = hosp_names + hosp_name + "\n"
+                hosp_names += hosp_name + ","
         return hosp_names
 
     def valid_hosp(self, hospital):
