@@ -79,7 +79,7 @@ def main():
 
     # Create socket object.
     s = socket.socket()
-    s.bind(('', port))
+    s.bind(('127.0.0.1', port))
     print("Socket binded to %s" %(port))
 
     # Put the socket into listening mode.        
@@ -345,7 +345,7 @@ def dashboard():
 
 def flask_thread():
     # TODO: disable debug
-    app.run(debug=True, port=PATIENT_PORT[p.name])
+    app.run(port=PATIENT_PORT[p.name])
 
 main()
     

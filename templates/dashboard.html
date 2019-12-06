@@ -232,7 +232,35 @@
             updateHospitalListTimer();
         }
 
-       function patientRegister(hosp_name){
+        function requestTreatment(physician_name) {
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {treatment: physician_name},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let hosp_list_div = $('#hospital-listing');
+                    hosp_list_div.empty();
+
+                    let hosp_names = response.split(',');
+                    for (let i = 0; i < hosp_names.length; i++){
+                        if (hosp_names[i] === ""){
+                            // there is a weird blank space that I don't know how to get rid of
+                            continue;
+                        }
+                        let hosp_btn = makeHospBtn(hosp_names[i]);
+                        hosp_list_div.append(hosp_btn);
+                    }
+                }
+            });
+            updateHospitalListTimer();
+
+        }
+
+        function patientRegister(hosp_name){
            $.ajax({
                url: "/dashboard/patient/{{ name }}",
                type: "POST",
@@ -247,7 +275,7 @@
                    $('#patient-id').html(patient_id);
                }
            });
-       }
+        }
 
         function updateHospitalListTimer(){
             setTimeout(function (){updateHospitalList()}, 2000);

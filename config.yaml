@@ -11,44 +11,44 @@ hospitals:
       port: 2000
     hospital_3:
       address: 'localhost'
-      port: 3000
+      port: 2100
 
 physicians:
   physician_1:
     name: 'bob'
     physician_id: 'AAAAAA'
     address: 'localhost'
-    port: 4000
+    port: 2200
   physician_2:
     name: 'alice'
     physician_id: 'BBBBBB'
     address: 'localhost'
-    port: 5000
+    port: 2300
   physician_3:
     name: 'jane'
     physician_id: 'CCCCCC'
     address: 'localhost'
-    port: 6000
+    port: 2400
 
 patients:
   patient_1:
     name: 'sally'
     patient_id: 'DDDDDD'
     address: 'localhost'
-    port: 7000
+    port: 2500
     card: 'cards/sally.txt'
     priv_key: 'priv/sally.pem'
   patient_2:
     name: 'eric'
     patient_id: 'EEEEEE'
     address: 'localhost'
-    port: 8000
+    port: 2600
     card: 'cards/eric.txt'
     priv_key: 'priv/eric.pem'
   patient_3:
     name: 'joe'
     patient_id: 'FFFFFF'
     address: 'localhost'
-    port: 9000
+    port: 2700
     card: 'cards/joe.txt'
     priv_key: 'priv/joe.pem'
