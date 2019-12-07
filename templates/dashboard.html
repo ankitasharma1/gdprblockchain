@@ -484,6 +484,18 @@
             return '<a class="btn btn-primary mr-1" href="#" onclick="physicianRegister(\'' + hosp_name + '\');">' + hosp_name + '<a>';
         }
 
+        function physicianRegister(hosp_name){
+           $.ajax({
+               url: "/dashboard/physician/{{ name }}",
+               type: "POST",
+               dataType: 'json',
+               data: {register: hosp_name},
+               error: function (request, status, error) {
+                   alert('Error: ' + error);
+               },
+           });
+        }        
+
         function getHospitalList() {
             $.ajax({
                 url: "/dashboard/physician/{{ name }}",
@@ -510,8 +522,34 @@
             });
         }
 
+        function getAffiliatedHospitalList() {
+            $.ajax({
+                url: "/dashboard/physician/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {affiliated_hospitals: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let affil_hosp_list_div = $('#affiliated-hospital-listing');
+                    affil_hosp_list_div.empty();
+
+                    for (let i = 0; i < response.length; i++){
+                        affil_hosp_list_div.append('<li>' + response[i] + '</li>');
+                    }                    
+                }
+            });
+          updateAffiliatedHospitalsTimer();
+        }
+
+        function updateAffiliatedHospitalsTimer(){
+          setTimeout(function (){getAffiliatedHospitalList()}, 2000);
+        }
+
         $(document).ready(function() {
             getHospitalList();
+            getAffiliatedHospitalList()
         })    
       </script>
     {% else %}

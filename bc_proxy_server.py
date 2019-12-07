@@ -131,13 +131,13 @@ def handle_message(message):
     if type == bc_msg.CONTAINS_HASH_UID:
         hash_uid = message.get(bc_msg.HASH_UID)
         print("-------> Servicing request to check if %s exists in the blockchain" %(hash_uid))
-        BLOCKCHAIN_MSGS.append("-------> Servicing request to check if %s exists in the blockchain\n" %(hash_uid))
+        BLOCKCHAIN_MSGS.append("-------> Servicing request to check if %s exists in the blockchain" %(hash_uid))
         response = bc.contains_hash_uid(hash_uid)
         return bc_msg.contains_hash_uid_msg_response(response)
     elif type == bc_msg.GET_PUB_KEY:
         hash_uid = message.get(bc_msg.HASH_UID)
         print("-------> Servicing request to obtain block for %s" %(hash_uid))
-        BLOCKCHAIN_MSGS.append("-------> Servicing request to obtain block for %s\n" %(hash_uid))
+        BLOCKCHAIN_MSGS.append("-------> Servicing request to obtain block for %s" %(hash_uid))
         pub_key = bc.get_pub_key(hash_uid)
         print("Returning %s " %(pub_key))
         return pub_key
@@ -145,12 +145,12 @@ def handle_message(message):
         hash_uid = message.get(bc_msg.HASH_UID)
         pub_key = message.get(bc_msg.PUB_KEY)
         print("-------> Servicing request to insert new transaction with hash_uid:%s pub_key:%s\n" %(hash_uid, pub_key))
-        BLOCKCHAIN_MSGS.append("-------> Servicing request to insert new trx with hash_uid:%s pub_key:%s\n" %(hash_uid, pub_key))
+        BLOCKCHAIN_MSGS.append("-------> Servicing request to insert new trx with hash_uid:%s pub_key:%s" %(hash_uid, pub_key))
         bc.new_transaction(hash_uid, pub_key)
         return None
     elif type == bc_msg.MINE:
         print("-------> Servicing request to mine the blockchain")
-        BLOCKCHAIN_MSGS.append("-------> Servicing request to mine the blockchain\n")
+        BLOCKCHAIN_MSGS.append("-------> Servicing request to mine the blockchain")
         bc.mine()
         return None
     else:

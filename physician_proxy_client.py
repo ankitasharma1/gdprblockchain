@@ -228,13 +228,13 @@ def dashboard():
         req_dict = request.get_json()
         if 'hospitals' in request.form:
             response = parser.get_hosp_names_string()
-        elif 'register' in req_dict:
-            hospital_name = req_dict['hospital_name']
+        elif 'register' in request.form:
+            hospital_name = request.form.get('register')
             if register(hospital_name):
-                response = "Registration successful"
+             response = "Registration successful"
             else:
                 response = "Error registering"
-        elif 'hospitals' in req_dict:
+        elif 'affiliated_hospitals' in request.form:
             response = phys.get_hospitals()
         # TODO: Finish physician APIs by hooking into the handle_message def
         elif 'seek_treatment' in req_dict:
