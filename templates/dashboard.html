@@ -119,7 +119,7 @@
           </div>
         </div>
         <div class="row">
-          <a class="btn btn-danger" href="#" role="button">Unregister</a>
+          <a class="btn btn-danger" onclick="removeCard()" href="#" role="button">Unregister</a>
         </div>
       </div>
       <div class="col-md-8 m-auto pl-4">
@@ -219,6 +219,21 @@
 
         function makeTreatmentBtn(phys_name){
             return '<a class="btn btn-primary mr-1" href="#" onclick="requestTreatment(\'' + phys_name + '\');">' + phys_name + '<a>';
+        }
+
+        function removeCard(){
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {remove_card: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    $('#patient-card').html(response);
+                }
+            })
         }
 
         function getHospitalList() {
