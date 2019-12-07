@@ -3,6 +3,9 @@
 # bc_proxy_server
 xterm -title "bc_proxy_server" -e "python bc_proxy_server.py" &
 
+# static server
+xterm -title "static_server" -e "python static_server.py" &
+
 # hospital
 xterm -title "hospital_proxy_server 1" -e "python hospital_proxy_server.py hospital_1" &
 xterm -title "hospital_proxy_server 2" -e "python hospital_proxy_server.py hospital_2" &

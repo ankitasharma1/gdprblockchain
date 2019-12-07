@@ -479,6 +479,41 @@
           </div>
         </div>
       </div>
+      <script>
+        function makeHospRegBtn(hosp_name){
+            return '<a class="btn btn-primary mr-1" href="#" onclick="physicianRegister(\'' + hosp_name + '\');">' + hosp_name + '<a>';
+        }
+
+        function getHospitalList() {
+            $.ajax({
+                url: "/dashboard/physician/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {hospitals: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    let hosp_list_div = $('#hospital-listing');
+                    hosp_list_div.empty();
+
+                    let hosp_names = response.split(',');
+                    for (let i = 0; i < hosp_names.length; i++){
+                        if (hosp_names[i] === ""){
+                            // there is a weird blank space that I don't know how to get rid of
+                            continue;
+                        }
+                        let hosp_btn = makeHospRegBtn(hosp_names[i]);
+                        hosp_list_div.append(hosp_btn);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            getHospitalList();
+        })    
+      </script>
     {% else %}
       <div class="h5">Error, entity type not recognized</div>
     {% endif %}

@@ -226,7 +226,9 @@ def dashboard():
         return render_template('dashboard.html', entity_type='physician', name=phys.name)
     elif request.method == 'POST':
         req_dict = request.get_json()
-        if 'register' in req_dict:
+        if 'hospitals' in request.form:
+            response = parser.get_hosp_names_string()
+        elif 'register' in req_dict:
             hospital_name = req_dict['hospital_name']
             if register(hospital_name):
                 response = "Registration successful"
