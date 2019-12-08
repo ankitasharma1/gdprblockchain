@@ -37,7 +37,7 @@
               alert('Error: ' + error);
             },
             success: function (response) {
-              $('#db-feed').html(response)
+              $('#db-feed').html(response);
             }
           });
           updateDatabaseTimer();
@@ -439,7 +439,7 @@
             });
         }
 
-        function tryLoadCard(){
+        function loadCard(){
             $.ajax({
                 url: "/dashboard/patient/{{ name }}",
                 type: "POST",
@@ -456,6 +456,7 @@
                     }
                 }
             });
+            loadCardTimer();
         }
 
         function getPatientId() {
@@ -471,13 +472,17 @@
                   $('#patient-id').html(response);
                 }
             });
-        }       
+        }
+
+        function loadCardTimer(){
+          setTimeout(function (){loadCard()}, 2000);
+        }                
 
         $(document).ready(function() {
             getPatientId()
             getHospitalList();
             getPhysicianList();
-            tryLoadCard();
+            loadCard();
         })
       </script>
     {% elif entity_type == 'physician' %}
@@ -625,7 +630,6 @@
                     alert('Error: ' + error);
                 },
                 success: function (response) {
-                  console.log(response)
                   $('#physician-id').html(response);                   
                 }
             });

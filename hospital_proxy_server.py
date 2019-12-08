@@ -163,11 +163,12 @@ def handle_message(message):
         patient_name = message.get(patient_msg.PATIENT_NAME)
         patient_id = message.get(patient_msg.PATIENT_ID)
         print("-------> Register Patient %s" %(patient_name))
-        HOSPITAL_MSGS.append("-------> Register Patient %s" %(patient_name))
+        HOSPITAL_MSGS.append("-------> Register patient request %s" %(patient_name))
         # API Call #
         card = h.register_patient(patient_name, patient_id)
         if card == None:
             # Unsuccessful registration.
+            HOSPITAL_MSGS.append("-------> Unsuccessful patient %s registration" %(patient_name))            
             return patient_msg.register_response_msg(False)
         else:
             # Successful registration.
@@ -181,17 +182,20 @@ def handle_message(message):
             f = open(card_path, "w+")
             f.write(str(card))
             f.close()
+            HOSPITAL_MSGS.append("-------> Successful patient %s registration" %(patient_name))                        
             return patient_msg.register_response_msg(True)
     elif type == phys_msg.REGISTER:
         physician_name = message.get(phys_msg.PHYSICIAN_NAME)
         physician_id = message.get(phys_msg.PHYSICIAN_ID)
         print("-------> Register Physician %s" %(physician_name))
-        HOSPITAL_MSGS.append("-------> Register Physician %s" %(physician_name))
+        HOSPITAL_MSGS.append("-------> Register physician request %s" %(physician_name))
         # API Call #
         response = h.register_physician(physician_name, physician_id)
         if response:
+            HOSPITAL_MSGS.append("-------> Successful physician %s registration" %(physician_name))            
             return phys_msg.register_response_msg(True)
         else:
+            HOSPITAL_MSGS.append("-------> Unsuccessful physician %s registration" %(physician_name))            
             return phys_msg.register_response_msg(False)
     elif type == phys_msg.WRITE:
         physician_id = message.get(phys_msg.PHYSICIAN_ID)
@@ -204,8 +208,10 @@ def handle_message(message):
         HOSPITAL_MSGS.append("-------> Write Request")
         response = h.write(card, med_rec, physician_id)
         if response:
+            HOSPITAL_MSGS.append("-------> Successful write request")            
             return phys_msg.write_response_msg(True)
         else:
+            HOSPITAL_MSGS.append("-------> Unsuccessful write request")                        
             return phys_msg.write_response_msg(False)
     elif type == patient_msg.READ:
         card_uid = message.get(patient_msg.CARD_UID)
@@ -234,8 +240,10 @@ def handle_message(message):
         HOSPITAL_MSGS.append("-------> Transfer Request from %s" %(card.patient_name))
         response = h.transfer(card, card_path, dest_hosp_name, dest_hosp_contact_info[ADDRESS], dest_hosp_contact_info[PORT])
         if response:
+            HOSPITAL_MSGS.append("-------> Successful transfer request for %s" %(card.patient_name))
             return patient_msg.transfer_response_msg(True)
         else:
+            HOSPITAL_MSGS.append("-------> Unsuccessful transfer request for %s" %(card.patient_name))            
             return patient_msg.transfer_response_msg(False)
     elif type == hospital_msg.TRANSFER_WRITE:
         db_key = message.get(hospital_msg.DB_KEY)
@@ -244,8 +252,10 @@ def handle_message(message):
         HOSPITAL_MSGS.append("---------> Transfer Write")
         response = h.transfer_write(db_key, block)
         if response:
+            HOSPITAL_MSGS.append("---------> Successful transfer write")            
             return hospital_msg.transfer_write_response_msg(True)
         else:
+            HOSPITAL_MSGS.append("---------> Unsuccessful transfer write")                        
             return hospital_msg.transfer_write_response_msg(False)
     else:
         print("ERROR: unknown type %s" %(type))
@@ -265,7 +275,7 @@ def dashboard():
         if 'get_staff' in request.form:
             response = h.get_staff()
         elif 'get_db' in request.form:
-            response = h.get_db()
+            response = str(h.get_db())
         elif 'update' in request.form:
             response = HOSPITAL_MSGS
         else:
