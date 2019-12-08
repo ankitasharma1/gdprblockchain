@@ -127,7 +127,7 @@
           </div>
         </div>
         <div class="row">
-          <a class="btn btn-danger" href="#" role="button">Unregister</a>
+          <a class="btn btn-danger" onclick="removeCard()" href="#" role="button">Unregister</a>
         </div>
       </div>
       <div class="col-md-8 m-auto pl-4">
@@ -187,11 +187,19 @@
               <div class="card-title">Transfer</div>
             </div>
             <div class="card-body">
-              <p class="card-text" id="transfer-hospital-list">TODO</p>
+              <div class="form-group">
+                <label for="transfer-source-hospital">Source Hospital</label>
+                <select class="form-control" id="transfer-source-hospital">
+                </select>
+                <label for="transfer-dest-hospital">Destination Hospital</label>
+                <select class="form-control" id="transfer-dest-hospital">
+                </select>
+                <a class="btn btn-primary" href="#" onclick="makeHospTransfer()">Transfer</a>
+              </div>
             </div>
             <div class="card-body">
               <div class="card-subtitle mb-2 text-muted">Response:</div>
-              <div class="card-text" id="transfer-output">Output</div>
+              <div class="card-text" id="transfer-output"></div>
             </div>
           </div>
           <div class="card w-100 ml-1">
@@ -203,7 +211,7 @@
             </div>
             <div class="card-body">
               <div class="card-subtitle mb-2 text-muted">Response:</div>
-              <div class="card-text" id="physician-transfer-output">Output</div>
+              <div class="card-text" id="physician-transfer-output"></div>
             </div>
           </div>
         </div>
@@ -229,6 +237,44 @@
             return '<a class="btn btn-primary mr-1" href="#" onclick="requestTreatment(\'' + phys_name + '\');">' + phys_name + '<a>';
         }
 
+        function makeHospTransfer(){
+            let src_hosp = $('#transfer-source-hospital option:selected').text();
+            let dest_hosp = $('#transfer-dest-hospital option:selected').text();
+            console.log(src_hosp);
+            console.log(dest_hosp);
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {
+                    transfer: 'true',
+                    src_hospital: src_hosp,
+                    dest_hospital: dest_hosp
+                },
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    $('#transfer-output').html(response);
+                }
+            })
+        }
+
+        function removeCard(){
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {remove_card: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                    $('#patient-card').html(response);
+                }
+            })
+        }
+
         function getHospitalList() {
             $.ajax({
                 url: "/dashboard/patient/{{ name }}",
@@ -248,6 +294,9 @@
                     let rm_hosp_list_div = $('#remove-hospital-list');
                     rm_hosp_list_div.empty();
 
+                    let src_div = $('#transfer-source-hospital');
+                    let dest_div = $('#transfer-dest-hospital');
+
                     let hosp_names = response.split(',');
                     for (let i = 0; i < hosp_names.length; i++){
                         if (hosp_names[i] === ""){
@@ -262,6 +311,10 @@
 
                         let rm_hosp_btn = makeHospRemoveBtn(hosp_names[i]);
                         rm_hosp_list_div.append(rm_hosp_btn);
+
+                        let option = '<option value=\"' + hosp_names[i] + '\">' + hosp_names[i] + '</option>';
+                        src_div.append(option);
+                        dest_div.append(option);
                     }
                 }
             });
