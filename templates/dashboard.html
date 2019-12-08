@@ -588,7 +588,6 @@
                     alert('Error: ' + error);
                 },
                 success: function (response) {
-                  console.log(response)
                   let patient_info_div = $('#patient-info');
                   patient_info_div.empty();
                   for (let i = 0; i < response.length; i++){
@@ -597,7 +596,27 @@
                 }
             });
           updatePatientReadMsgsTimer();
-        }        
+        }       
+
+        function getTreatmentMsgs() {
+            $.ajax({
+                url: "/dashboard/physician/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {read: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                  let treatment_div = $('#treatment-output');
+                  treatment_div.empty();
+                  for (let i = 0; i < response.length; i++){
+                      treatment_div.append('<li>' + response[i] + '</li>');
+                  }                    
+                }
+            });
+          updateTreatmentMsgsTimer();
+        }                
 
         function updateAffiliatedHospitalsTimer(){
           setTimeout(function (){getAffiliatedHospitalList()}, 2000);
@@ -607,11 +626,16 @@
           setTimeout(function (){getPatientReadMsgs()}, 2000);
         }
 
+        function updateTreatmentMsgsTimer(){
+          setTimeout(function (){getPatientReadMsgs()}, 2000);
+        }        
+
         $(document).ready(function() {
             getPhysicianId()
             getHospitalList();
             getAffiliatedHospitalList()
             getPatientReadMsgs();
+            getTreatmentMsgs()
         })    
       </script>
     {% else %}

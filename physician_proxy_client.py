@@ -30,7 +30,6 @@ NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
 phys = None
 parser = Parser()
 
-PHYSICIAN_TREATMENT_MSGS = []
 PHYSICIAN_READ_MSGS = []
 GLOBAL_CARD_PATH = None
 PHYSICIAN_PORT = {
@@ -223,7 +222,6 @@ def clean_up(c):
 def dashboard():
     global GLOBAL_CARD_PATH
     global PHYSICIAN_READ_MSGS
-    global PHYSICIAN_TREATMENT_MSGS
     global phys
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='physician', name=phys.name)
@@ -244,15 +242,14 @@ def dashboard():
         elif 'read' in request.form:
             response = PHYSICIAN_READ_MSGS
         # TODO: Finish physician APIs by hooking into the handle_message def
-        elif 'seek_treatment' in req_dict:
+        elif 'seek_treatment' in request.form:
             if GLOBAL_CARD_PATH:
-                response = None
+                response = "Error currently treating other patient"
             else:
-                GLOBAL_CARD_PATH = req_dict['seek_treatment']
+                GLOBAL_CARD_PATH = request.form['seek_treatment']
                 card = card_helper.get_card_object(GLOBAL_CARD_PATH)
-                PHYSICIAN_TREATMENT_MSGS.append("-------> Request for treatment from %s" % card.patient_name)
-                response = json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-        elif 'submit_treatment' in req_dict:
+                response = "-------> Request for treatment from %s" % card.patient_name
+        elif 'submit_treatment' in request.form:
             if GLOBAL_CARD_PATH:
                 card = card_helper.get_card_object(GLOBAL_CARD_PATH)
                 hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
@@ -264,9 +261,9 @@ def dashboard():
                     response = patient_msg.seek_treatment_msg_response(False)
                     GLOBAL_CARD_PATH = None
             else:
-                response = json.dumps({'success': False}), 404, {'ContentType': 'application/json'}
+                response = "Error: missing patient consent for treatment"
         else:
-            response = json.dumps({'success': False}), 400, {'ContentType': 'application/json'}
+            response = "Error: Flask request not recognized"
         return jsonify(response)
 
 

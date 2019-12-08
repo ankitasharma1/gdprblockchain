@@ -310,7 +310,7 @@ def dashboard():
             if result:
                 response = 'Treatment requested successfully'
             else:
-                response = 'Error getting requesting treatment'
+                response = 'Error requesting treatment'
         elif 'read' in request.form:
             hospital_name = request.form.get('read')
             response = read(hospital_name)
