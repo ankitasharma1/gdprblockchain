@@ -30,7 +30,12 @@
                   alert('Error: ' + error);
               },
               success: function (response) {
-                  $('#block_data').html(response)
+                console.log(response)
+                let block_div = $('#block_data');
+                block_div.empty();
+                for (let i = 0; i < response.length; i++){
+                    block_div.append('<li>' + response[i] + '</li>');
+                }
               }
           });
           updateBlockchainBlocksTimer();
@@ -46,7 +51,11 @@
                   alert('Error: ' + error);
               },
               success: function (response) {
-                  $('#logs').html(response)
+                let logs_div = $('#logs');
+                logs_div.empty();
+                for (let i = 0; i < response.length; i++){
+                    logs_div.append('<li>' + response[i] + '</li>');
+                }
               }
           });
           updateLogsTimer();

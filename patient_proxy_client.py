@@ -289,7 +289,9 @@ def dashboard():
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='patient', name=p.name)
     elif request.method == 'POST':
-        if 'physicians' in request.form:
+        if 'patient_id' in request.form:
+            response = p.patient_id
+        elif 'physicians' in request.form:
             response = parser.get_phys_names_string()
         elif 'hospitals' in request.form:
             response = parser.get_hosp_names_string()
@@ -314,7 +316,10 @@ def dashboard():
             response = read(hospital_name)
         elif 'physician_read' in request.form:
             physician_name = request.form.get('physician_read')
-            response = phys_read(physician_name)
+            if phys_read(physician_name):
+                response = "Records were successfully read."
+            else:
+                response = "Records were not able to be read."
         elif 'remove_card' in request.form:
             p.card = None
             response = str(p.card)

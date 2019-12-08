@@ -214,6 +214,19 @@ class Blockchain:
         printable += "\n\n"
         return printable
 
+    def get_printable_bc_list(self):
+        blocks = []
+        for block in self.chain:
+            index = str(block.index)
+            timestamp = block.time_string
+            prev_hash = str(block.previous_hash)
+            nonce = str(block.nonce)
+            hash_id = str(block.hash_id)
+            pub_key = str(block.pub_key)
+            printable = "Index: " + index + " Timestamp: " + timestamp + " Prev_hash: " + prev_hash + " Nonce: " + nonce + " Hash_id: " + hash_id + " Pub_key: " + pub_key
+            blocks.append(printable)
+        return blocks
+
     # Helper function to validate the hash given the difficulty.
     def validate_hash(self, block):
         computed_hash = block.compute_hash()

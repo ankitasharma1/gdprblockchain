@@ -53,7 +53,11 @@
                     alert('Error: ' + error);
                 },
                 success: function (response) {
-                    $('#staff-feed').html(response)
+                  let hospital_staff_div = $('#staff-feed');
+                  hospital_staff_div.empty();
+                  for (let i = 0; i < response.length; i++){
+                      hospital_staff_div.append('<li>' + response[i] + '</li>');
+                  }
                 }
             });
             updateStaffTimer();
@@ -69,7 +73,11 @@
                     alert('Error: ' + error);
                 },
                 success: function (response) {
-                    $('#hospital-logs').html(response)
+                    let hospital_logs_div = $('#hospital-logs');
+                    hospital_logs_div.empty();
+                    for (let i = 0; i < response.length; i++){
+                        hospital_logs_div.append('<li>' + response[i] + '</li>');
+                    }
                 }
             });
             updateHospitalLogsTimer();
@@ -356,8 +364,6 @@
                },
                success: function (response) {
                    $('#patient-card').html(response);
-                   let patient_id = response.split(',')[1];
-                   $('#patient-id').html(patient_id);
                }
            });
         }
@@ -392,17 +398,30 @@
                 success: function (response) {
                     if (response === "N/a"){
                         $('#patient-card').html(response);
-                        $('#patient-id').html(response);
                     } else {
                         $('#patient-card').html(response);
-                        let patient_id = response.split(',')[1];
-                        $('#patient-id').html(patient_id);
                     }
                 }
             });
         }
 
+        function getPatientId() {
+            $.ajax({
+                url: "/dashboard/patient/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {patient_id: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                  $('#patient-id').html(response);
+                }
+            });
+        }       
+
         $(document).ready(function() {
+            getPatientId()
             getHospitalList();
             getPhysicianList();
             tryLoadCard();
@@ -543,13 +562,56 @@
           updateAffiliatedHospitalsTimer();
         }
 
+        function getPhysicianId() {
+            $.ajax({
+                url: "/dashboard/physician/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {physician_id: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                  console.log(response)
+                  $('#physician-id').html(response);                   
+                }
+            });
+        }
+
+        function getPatientReadMsgs() {
+            $.ajax({
+                url: "/dashboard/physician/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {read: 'true'},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                  console.log(response)
+                  let patient_info_div = $('#patient-info');
+                  patient_info_div.empty();
+                  for (let i = 0; i < response.length; i++){
+                      patient_info_div.append('<li>' + response[i] + '</li>');
+                  }                    
+                }
+            });
+          updatePatientReadMsgsTimer();
+        }        
+
         function updateAffiliatedHospitalsTimer(){
           setTimeout(function (){getAffiliatedHospitalList()}, 2000);
         }
 
+        function updatePatientReadMsgsTimer(){
+          setTimeout(function (){getPatientReadMsgs()}, 2000);
+        }
+
         $(document).ready(function() {
+            getPhysicianId()
             getHospitalList();
             getAffiliatedHospitalList()
+            getPatientReadMsgs();
         })    
       </script>
     {% else %}

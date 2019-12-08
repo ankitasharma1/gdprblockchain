@@ -267,9 +267,7 @@ def dashboard():
         elif 'get_db' in request.form:
             response = h.get_db()
         elif 'update' in request.form:
-            response = ""
-            for msg in HOSPITAL_MSGS:
-                response += msg
+            response = HOSPITAL_MSGS
         else:
             response = "Error in Flask request"
         return jsonify(response)

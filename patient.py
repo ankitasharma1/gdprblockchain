@@ -165,13 +165,13 @@ class Patient:
         Function for a patient to give a physician permission to read their data.
         :param physician_address: Physician address
         :param physician_port: Physician port
-        :return: nothing
+        :return: boolean
         """       
         if self.card:
             response = self.send_msg(patient_msg.phys_read_msg(self.card_path), physician_address, physician_port)
             if isinstance(response , int):
                 print("ERROR: Physician client error")
-                return
+                return False
  
             # Physician returns a boolean.
             if response.get(patient_msg.RESPONSE):
@@ -179,10 +179,10 @@ class Patient:
                 return True
             else:
                 print("Unable to have records read.")
-                return
+                return False
         else:
             print("ERROR: Must register with a hospital first")
-            return
+            return False
 
 
     def remove(self, hospital_address, hospital_port):

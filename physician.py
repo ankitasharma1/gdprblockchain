@@ -122,43 +122,49 @@ class Physician():
         :param card_path: Patient card
         :param hospital_address: Hospital address
         :param hospital_port: Hospital port
-        :return: boolean
+        :return: boolean, decrypted medical records
         """
+        records = []    
         card = card_helper.get_card_object(card_path)
         if card == None:
-            return False
+            return False, records
                 
         if not self.hospital_affiliation_valid(card.hospital_name):
-            return False      
+            return False, records      
 
         # Copied patient code.
         socket = self.send_msg_get_socket(patient_msg.read_msg(card.uid), hospital_address, hospital_port)
         if isinstance(socket, int):
-            return
+            return False, records
         data = socket.recv(MESSAGE_SIZE)
         if data:
             responses = constants.deserialize(data)
             for response in responses:
                 if isinstance(response , int):
                     socket.close()
-                    return
+                    return False, records
                 if response.get(patient_msg.RESPONSE):
-                    print(crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key))                
+                    r = crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key)
+                    print(r)
+                    records.append(r)              
                     num_blocks = response.get(patient_msg.NUM_BLOCKS)
                     # Special casing the first response before reading the rest.
                     for i in range(1, num_blocks):
                         data = socket.recv(MESSAGE_SIZE)
                         if data:
                             responses = constants.deserialize(data)
-                            for response in responses: 
-       		                    print(crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key))
+                            for response in responses:
+                                r = crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key)
+                                print(r)
+                                records.append(r) 
+       		                    # print(crypto.decrypt(response.get(patient_msg.BLOCK), card.priv_key))
             
                 else:
                     print("No records were retrieved.")
                     socket.close()
-                    return False
+                    return False, records
         socket.close()
-        return True
+        return True, records
 
     def transfer(self, card_path, src_hosp, src_hosp_address, src_hosp_port, dst_hosp):
         """

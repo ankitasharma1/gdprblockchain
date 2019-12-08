@@ -170,14 +170,16 @@ def blockchain():
         print("req.form: %s" % request.form)
         req_dict = request.form
         if 'cmd' in req_dict:
-            response = bc.get_printable_bc()
+            response = bc.get_printable_bc_list()
+            print(response)            
         # elif req_dict['msg']:
         #     BLOCKCHAIN_MSGS.append(req_dict['msg'])
         #     response = json.dumps({'success':True}), 200, {'ContentType':'application/json'}
         elif 'update' in req_dict:
-            response = ""
-            for msg in BLOCKCHAIN_MSGS:
-                response += msg + '\n'
+            response = BLOCKCHAIN_MSGS
+            # response = ""
+            # for msg in BLOCKCHAIN_MSGS:
+            #     response += msg + '\n'
         else:
             response = "ERROR request to flask not recognized"
         return jsonify(response)
