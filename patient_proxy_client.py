@@ -248,8 +248,7 @@ def register(hosp_name):
         return
 
     hosp_contact_info = parser.get_hosp_contact_info(hosp_name)
-    p.register(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
-    return
+    return p.register(hosp_contact_info[ADDRESS], hosp_contact_info[PORT])
 
 def handle_connection(s):
     while True:
@@ -297,8 +296,10 @@ def dashboard():
             response = parser.get_hosp_names_string()
         elif 'register' in request.form:
             hospital_name = request.form.get('register')
-            register(hospital_name)
-            response = str(p.card)
+            if register(hospital_name):
+                response = str(p.card)
+            else:
+                response = "N/a"
         elif 'card' in request.form:
             if p.card:
                 response = str(p.card)

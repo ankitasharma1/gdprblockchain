@@ -76,12 +76,12 @@ class Patient:
         response = self.send_msg(patient_msg.register_msg(self.name, self.patient_id), hospital_address, hospital_port)
         if isinstance(response , int):
             print("ERROR: Hospital server error")
-            return
+            return False
 
         # Check if appropriate response is received.
         if response.get(constants.TYPE) != patient_msg.REGISTER_RESPONSE:
             print("ERROR: incorrect response type from hospital, should have received %s" %(patient_msg.REGISTER_RESPONSE))
-            return
+            return False
 
         # Hospital returns a boolean.
         if response.get(patient_msg.RESPONSE):

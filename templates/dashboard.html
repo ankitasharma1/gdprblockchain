@@ -416,7 +416,11 @@
                    alert('Error: ' + error);
                },
                success: function (response) {
-                   $('#patient-card').html(response);
+                if (response === "N/a"){
+                    alert("Unable to register patient.")
+                  } else {
+                    $('#patient-card').html(response);
+                  }
                }
            });
         }
