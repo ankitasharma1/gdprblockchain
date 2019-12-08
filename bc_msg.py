@@ -2,6 +2,10 @@ import json
 import yaml
 from constants import MESSAGE_SIZE
 
+"""
+Blockchain Message Protocol Definitions/Methods.
+"""
+
 # Message Type
 TYPE = "type"
 CONTAINS_HASH_UID = "contains_hash_uid"

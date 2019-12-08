@@ -1,6 +1,12 @@
 from hospital import Card
 import crypto
 
+"""
+Helper function for creating a card object from the card contents written to a file. 
+Instead of sending 'card' objects over sockets, we send the name of a pre-specified file 
+on the machine where the card contents are written to.
+"""
+
 PATIENT_NAME = 0
 PATIENT_ID = 1
 UID = 2

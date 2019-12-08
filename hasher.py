@@ -1,5 +1,9 @@
 import hashlib as hasher
 
+"""
+External hasher service that all hospitals use.
+"""
+
 def hash(data):
     h = hasher.sha256()
     result = str(data)

@@ -9,6 +9,10 @@ from flask import Flask, request, render_template, jsonify, redirect
 from requests import post
 import json
 
+"""
+Responsible for processing and responding to blockchain messages/ transmitting messages to the blockchain. 
+"""
+
 BLOCKCHAIN_MSGS = []
 BLOCKCHAIN_PORT = 8001
 BLOCKCHAIN_URL = "127.0.0.1:%s/blockchain" % BLOCKCHAIN_PORT

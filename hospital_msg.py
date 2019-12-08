@@ -4,6 +4,10 @@ from constants import MESSAGE_SIZE
 import constants
 from constants import TYPE
 
+"""
+Hospital Message Protocol Definitions/Methods.
+"""
+
 # Message Type
 TRANSFER_WRITE = "transfer_write"
 TRANSFER_WRITE_RESPONSE = "transfer_write_response"
