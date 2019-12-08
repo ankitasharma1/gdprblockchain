@@ -30,6 +30,7 @@ NUM_REGISTER_PARAMS = 2 # 'reg [hospital name]'
 phys = None
 parser = Parser()
 
+PHYSICIAN_TREATMENT_MSGS = []
 PHYSICIAN_READ_MSGS = []
 GLOBAL_CARD_PATH = None
 PHYSICIAN_PORT = {
@@ -168,12 +169,19 @@ def listen_on_socket(c):
 def handle_message(message):
     type = message.get(TYPE)
     if type == patient_msg.SEEK_TREATMENT:
+        global PHYSICIAN_TREATMENT_MSGS
         card_path = message.get(patient_msg.CARD_PATH)
-        resp = post('127.0.0.1/dashboard/physician/%s/seek_treatment', {'seek_treatment': card_path} )
-        if resp == 'None':
-            return "Error"
+        phys_port = PHYSICIAN_PORT[phys.name]
+        resp = post('http://127.0.0.1:%s/dashboard/physician/%s' % (phys_port, phys.name), data={'seek_treatment': card_path} )
+
+        if resp.text == 'None':
+            print "HELLO"
+            return patient_msg.seek_treatment_msg_response(False)
         else:
-            return "Success"
+            print "Response:::"
+            print resp.text
+            PHYSICIAN_TREATMENT_MSGS.append(resp.text)
+            return patient_msg.seek_treatment_msg_response(True)
     elif type == patient_msg.PHYS_READ:
         global PHYSICIAN_READ_MSGS
         card_path = message.get(patient_msg.CARD_PATH)
@@ -222,11 +230,11 @@ def clean_up(c):
 def dashboard():
     global GLOBAL_CARD_PATH
     global PHYSICIAN_READ_MSGS
+    global PHYSICIAN_TREATMENT_MSGS
     global phys
     if request.method == 'GET':
         return render_template('dashboard.html', entity_type='physician', name=phys.name)
     elif request.method == 'POST':
-        req_dict = request.get_json()
         if 'physician_id' in request.form:
             response = phys.physician_id
         elif 'hospitals' in request.form:
@@ -243,17 +251,22 @@ def dashboard():
             response = PHYSICIAN_READ_MSGS
         # TODO: Finish physician APIs by hooking into the handle_message def
         elif 'seek_treatment' in request.form:
+            print("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
             if GLOBAL_CARD_PATH:
-                response = "Error currently treating other patient"
+                response = None
             else:
+                # card path set above via handle_message()
                 GLOBAL_CARD_PATH = request.form['seek_treatment']
                 card = card_helper.get_card_object(GLOBAL_CARD_PATH)
-                response = "-------> Request for treatment from %s" % card.patient_name
+                if card:
+                    response = "-------> Request for treatment from %s" % card.patient_name
+                else:
+                    response = None
         elif 'submit_treatment' in request.form:
             if GLOBAL_CARD_PATH:
                 card = card_helper.get_card_object(GLOBAL_CARD_PATH)
                 hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
-                notes = req_dict['submit_treatment']
+                notes = request.form['submit_treatment']
                 if phys.seek_treatment(GLOBAL_CARD_PATH, notes, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
                     response = patient_msg.seek_treatment_msg_response(True)
                     GLOBAL_CARD_PATH = None
@@ -262,8 +275,12 @@ def dashboard():
                     GLOBAL_CARD_PATH = None
             else:
                 response = "Error: missing patient consent for treatment"
+        elif 'update_phys_treatment_msgs' in request.form:
+            print PHYSICIAN_TREATMENT_MSGS
+            response = PHYSICIAN_TREATMENT_MSGS
         else:
-            response = "Error: Flask request not recognized"
+            print request.form
+            response = ["Error: Flask request not recognized"]
         return jsonify(response)
 
 

@@ -518,7 +518,7 @@
               <form>
                 <div class="form-group">
                   <input type="text" class="form-control" id="physician-treatment" placeholder="Treatment Info">
-                  <button type="submit" class="btn btn-primary">Submit</button>
+                  <a href="#" class="btn btn-primary" role="button" onclick="submitTreatment()">Submit</a>
                 </div>
               </form>
             </div>
@@ -656,7 +656,7 @@
                 url: "/dashboard/physician/{{ name }}",
                 type: "POST",
                 dataType: 'json',
-                data: {read: 'true'},
+                data: {update_phys_treatment_msgs: 'true'},
                 error: function (request, status, error) {
                     alert('Error: ' + error);
                 },
@@ -671,6 +671,28 @@
           updateTreatmentMsgsTimer();
         }                
 
+        function submitTreatment(){
+            note_div = $('#physician-treatment');
+            let notes = note_div.val();
+            $.ajax({
+                url: "/dashboard/physician/{{ name }}",
+                type: "POST",
+                dataType: 'json',
+                data: {submit_treatment: notes},
+                error: function (request, status, error) {
+                    alert('Error: ' + error);
+                },
+                success: function (response) {
+                  let treatment_div = $('#treatment-output');
+                  treatment_div.empty();
+                  for (let i = 0; i < response.length; i++){
+                      treatment_div.append('<li>' + response[i] + '</li>');
+                  }                    
+                }
+            });
+            note_div.empty();
+        }
+
         function updateAffiliatedHospitalsTimer(){
           setTimeout(function (){getAffiliatedHospitalList()}, 2000);
         }
@@ -680,7 +702,7 @@
         }
 
         function updateTreatmentMsgsTimer(){
-          setTimeout(function (){getPatientReadMsgs()}, 2000);
+          setTimeout(function (){getTreatmentMsgs()}, 2000);
         }        
 
         $(document).ready(function() {
