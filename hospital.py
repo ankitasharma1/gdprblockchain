@@ -376,8 +376,9 @@ class Hospital:
         """
         print(">>> Sending request to bc to add new txn")
         self.send_message_to_bc(bc_msg.new_txn(hash_uid, ""), pub_key)
-        print(">>> Sending request to bc to mine the new txn")
-        self.send_message_to_bc(bc_msg.mine()) 
+        # Adding a new transaction implicitly means to mine it.
+        # print(">>> Sending request to bc to mine the new txn")
+        # self.send_message_to_bc(bc_msg.mine()) 
 
     def valid_phy(self, phy):
         """

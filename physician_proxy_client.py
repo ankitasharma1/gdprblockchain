@@ -175,11 +175,8 @@ def handle_message(message):
         resp = post('http://127.0.0.1:%s/dashboard/physician/%s' % (phys_port, phys.name), data={'seek_treatment': card_path} )
 
         if resp.text == 'None':
-            print "HELLO"
             return patient_msg.seek_treatment_msg_response(False)
         else:
-            print "Response:::"
-            print resp.text
             PHYSICIAN_TREATMENT_MSGS.append(resp.text)
             return patient_msg.seek_treatment_msg_response(True)
     elif type == patient_msg.PHYS_READ:
@@ -251,7 +248,6 @@ def dashboard():
             response = PHYSICIAN_READ_MSGS
         # TODO: Finish physician APIs by hooking into the handle_message def
         elif 'seek_treatment' in request.form:
-            print("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
             if GLOBAL_CARD_PATH:
                 response = None
             else:
@@ -268,18 +264,18 @@ def dashboard():
                 hosp_contact_info = parser.get_hosp_contact_info(card.hospital_name)
                 notes = request.form['submit_treatment']
                 if phys.seek_treatment(GLOBAL_CARD_PATH, notes, hosp_contact_info[ADDRESS], hosp_contact_info[PORT]):
-                    response = patient_msg.seek_treatment_msg_response(True)
+                    patient_msg.seek_treatment_msg_response(True)
                     GLOBAL_CARD_PATH = None
+                    response = "Successfully wrote to hospital db for %s" % card.patient_name
                 else:
-                    response = patient_msg.seek_treatment_msg_response(False)
+                    patient_msg.seek_treatment_msg_response(False)
                     GLOBAL_CARD_PATH = None
+                    response = "Unsuccessful update."                   
             else:
                 response = "Error: missing patient consent for treatment"
         elif 'update_phys_treatment_msgs' in request.form:
-            print PHYSICIAN_TREATMENT_MSGS
             response = PHYSICIAN_TREATMENT_MSGS
         else:
-            print request.form
             response = ["Error: Flask request not recognized"]
         return jsonify(response)
 

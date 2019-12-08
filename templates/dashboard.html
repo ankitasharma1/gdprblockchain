@@ -685,12 +685,10 @@
                 success: function (response) {
                   let treatment_div = $('#treatment-output');
                   treatment_div.empty();
-                  for (let i = 0; i < response.length; i++){
-                      treatment_div.append('<li>' + response[i] + '</li>');
-                  }                    
+                  alert(response)
                 }
             });
-            note_div.empty();
+            note_div.val('');
         }
 
         function updateAffiliatedHospitalsTimer(){

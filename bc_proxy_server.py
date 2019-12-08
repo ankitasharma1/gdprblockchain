@@ -144,15 +144,16 @@ def handle_message(message):
     elif type == bc_msg.NEW_TXN:
         hash_uid = message.get(bc_msg.HASH_UID)
         pub_key = message.get(bc_msg.PUB_KEY)
-        print("-------> Servicing request to insert new transaction with hash_uid:%s pub_key:%s\n" %(hash_uid, pub_key))
-        BLOCKCHAIN_MSGS.append("-------> Servicing request to insert new trx with hash_uid:%s pub_key:%s" %(hash_uid, pub_key))
+        print("-------> Servicing request to insert and mine new transaction with hash_uid:%s pub_key:%s\n" %(hash_uid, pub_key))
+        BLOCKCHAIN_MSGS.append("-------> Servicing request to insert and mine new transaction with hash_uid:%s pub_key:%s" %(hash_uid, pub_key))
         bc.new_transaction(hash_uid, pub_key)
-        return None
-    elif type == bc_msg.MINE:
-        print("-------> Servicing request to mine the blockchain")
-        BLOCKCHAIN_MSGS.append("-------> Servicing request to mine the blockchain")
         bc.mine()
         return None
+    # elif type == bc_msg.MINE:
+    #     print("-------> Servicing request to mine the blockchain")
+    #     BLOCKCHAIN_MSGS.append("-------> Servicing request to mine the blockchain")
+    #     bc.mine()
+    #     return None
     else:
         print("Unable to service request, invalid message: %d" %(type))
 
