@@ -231,7 +231,7 @@ def handle_message(message):
         card = card_helper.get_card_object(card_path)
         dest_hosp_contact_info = parser.get_hosp_contact_info(dest_hosp_name)
         print("-------> Transfer Request from %s" %(card.patient_name))
-        HOSPITAL_MSGS.apppend("-------> Transfer Request from %s" %(card.patient_name))
+        HOSPITAL_MSGS.append("-------> Transfer Request from %s" %(card.patient_name))
         response = h.transfer(card, card_path, dest_hosp_name, dest_hosp_contact_info[ADDRESS], dest_hosp_contact_info[PORT])
         if response:
             return patient_msg.transfer_response_msg(True)
