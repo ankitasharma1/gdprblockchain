@@ -2,7 +2,7 @@
 
 ## Description
 
-This project is a proof-of-concept for a system of blockchains (both public and private) for making reading, writing, removing, and tranasferring patient medical data more secure.
+This project is a proof-of-concept for a system of blockchains (both public and private) for making reading, writing, removing, and transferring patient medical data more secure.
 
 The ecosystem of our project is derived from 'config.yaml.' The configuration file specifies the entities involved and their contact information (ip address and port number). 
 
