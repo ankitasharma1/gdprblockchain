@@ -1,7 +1,28 @@
-#! /usr/bin/env zsh
+#! /usr/bin/env bash
 
 # NOTE: for james's mac only
-source ~/.tab.bash
+[ `uname -s` != "Darwin" ] && echo "Cannot run on non-macosx system." && exit
+
+function tab () {
+    local cdto="$PWD"
+    local args="$@"
+
+    if [ -d "$1" ]; then
+        cdto=`cd "$1"; pwd`
+        args="${@:2}"
+    fi
+
+    osascript -i <<EOF
+        tell application "iTerm2"
+                tell current window
+                        create tab with default profile
+                        tell the current session
+                                write text "cd \"$cdto\" && $args"
+                        end tell
+                end tell
+        end tell
+EOF
+}
 
 # bc_proxy_server
 tab "python bc_proxy_server.py";
