@@ -18,14 +18,14 @@ To try out our project, you will run a startup script that will kick-off all of 
 
 ## Usage
 
-Install `Python 2.x.x`
+###Install `Python 2.x.x`
 
-Linux: Starting up: ./main_anx.sh
+### Linux: Starting up: ./main_anx.sh
 
-Mac: Starting up: ./main_james.sh
-Requires 'iTerm2'
+### Mac: Starting up: ./main_james.sh
+### Requires 'iTerm2'
 
-Cleaning up: ./stop.sh
+### Cleaning up: ./stop.sh
 
 ## Notes
 
