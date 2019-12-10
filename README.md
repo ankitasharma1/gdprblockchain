@@ -22,8 +22,8 @@ To try out our project, you will run a startup script that will kick-off all of 
 
 ### Linux: Starting up: ./main_anx.sh
 
-### Mac: Starting up: ./main_james.sh
-### Requires 'iTerm2'
+### Mac: Starting up: ./main_james.sh 
+### Requires 'iTerm2' for Mac
 
 ### Cleaning up: ./stop.sh
 
