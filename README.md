@@ -18,7 +18,7 @@ To try out our project, you will run a startup script that will kick-off all of 
 
 ## Usage
 
-###Install `Python 2.x.x`
+### Install `Python 2.x.x`
 
 ### Linux: Starting up: ./main_anx.sh
 
