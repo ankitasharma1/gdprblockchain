@@ -23,6 +23,7 @@ Install `Python 2.x.x`
 Linux: Starting up: ./main_anx.sh
 
 Mac: Starting up: ./main_james.sh
+Requires 'iTerm2'
 
 Cleaning up: ./stop.sh
 
