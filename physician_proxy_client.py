@@ -2,7 +2,7 @@ import socket
 import sys
 from constants import ADDRESS
 from constants import PORT
-from parser import Parser
+from myparser import Parser
 from threading import Thread
 from threading import Condition
 from physician import Physician

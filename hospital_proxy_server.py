@@ -1,7 +1,7 @@
 import socket
 import sys
 from hospital import Hospital
-from parser import Parser
+from myparser import Parser
 from threading import Thread
 from threading import Condition
 from constants import ADDRESS

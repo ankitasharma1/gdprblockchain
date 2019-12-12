@@ -1,7 +1,7 @@
 from constants import CONFIG_FILE
 import yaml
 
-class Parser():
+class Parser:
     """
     Parser creates a knowledge base for the program based on the configuration file. Its purpose is similar to DNS.
     """
